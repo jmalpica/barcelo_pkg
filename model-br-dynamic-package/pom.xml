@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.barcelo.decision</groupId>	
+	<artifactId>model-br-dynamic-package</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>model-br-dynamic-package</name>
+
+	<dependencies>
+		<!--dependency>
+			<groupId>com.barcelo.integration</groupId>
+			<artifactId>integration-engine-model-api-common</artifactId>
+			<version>${api.common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.barcelo.integration</groupId>
+			<artifactId>integration-engine-model-api-transport</artifactId>
+			<version>${api.transport.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.barcelo.integration</groupId>
+			<artifactId>integration-engine-model-api-hotel</artifactId>
+			<version>${api.hotel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.barcelo.integration</groupId>
+			<artifactId>integration-engine-model-api-carhire</artifactId>
+			<version>${api.carhire.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.barcelo.integration</groupId>
+			<artifactId>integration-engine-model-api-ferry</artifactId>
+			<version>${api.ferry.version}</version>
+		</dependency -->
+		<dependency>
+			<groupId>com.barcelo.integration</groupId>
+			<artifactId>integration-engine-model-api-pack</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.14.8</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+	</build>
+</project>
