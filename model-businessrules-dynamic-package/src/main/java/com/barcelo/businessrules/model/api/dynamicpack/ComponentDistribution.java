@@ -1,4 +1,4 @@
-package com.barcelo.businessrules.model.api;
+package com.barcelo.businessrules.model.api.dynamicpack;
 
 import java.math.BigDecimal;
 import java.util.Date;
