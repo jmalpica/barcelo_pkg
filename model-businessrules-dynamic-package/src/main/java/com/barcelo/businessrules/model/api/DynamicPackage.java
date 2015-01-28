@@ -1,12 +1,8 @@
-package com.barcelo.decision.bom;
+package com.barcelo.businessrules.model.api;
 
 import java.util.List;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Root class of the fact tree that will represent all items whose price could be modified

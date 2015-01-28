@@ -1,4 +1,4 @@
-package com.barcelo.decision.bom;
+package com.barcelo.businessrules.model.api;
 
 import java.util.List;
 

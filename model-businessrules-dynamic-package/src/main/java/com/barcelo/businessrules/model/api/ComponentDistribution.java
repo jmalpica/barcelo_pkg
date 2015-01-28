@@ -1,4 +1,4 @@
-package com.barcelo.decision.bom;
+package com.barcelo.businessrules.model.api;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,10 +17,10 @@ public abstract class ComponentDistribution {
 	private DynamicPackage dynamicPackage;
 	private String rateType;
 	private String destinationGroup;
-	private Date departureDateTime;
-	private Date arrivalDateTime;
-	private int departureWeekday;
-	private int arrivalWeekday;
+	private Date startDateTime;
+	private Date endDateTime;
+	private int startWeekday;
+	private int endWeekday;
 	private int daysInAdvance;
 	private String travellerType;
 	private String travellerAgeType;
@@ -38,7 +38,7 @@ public abstract class ComponentDistribution {
 	private BigDecimal profitabilityAmount;
 	private BigDecimal taxAmount;
 	private boolean maxCommissionExceeded;
-	private ProfitabilityWarning profitabilityWarning;
+	private boolean profitabilityWarning;
 
 	/**
 	 * Reference kept to be able to streamline the JAXB model modification
