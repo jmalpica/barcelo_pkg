@@ -1,5 +1,6 @@
 package com.barcelo.businessrules.model.api.dynamicpack;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -17,7 +18,7 @@ public class DynamicPackage {
 	private String managementGroup;
 	private String agency;
 	private String branchOffice;
-	private String bookingDate;
+	private Date bookingDate;
 	private int bookingWeekday;
 	private List<ComponentDistribution> componentDistributionList;
 }
