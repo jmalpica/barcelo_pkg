@@ -1,7 +1,19 @@
 package com.barcelo.businessrules.dynamicpack.converter.impl;
 
+import java.io.File;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import com.barcelo.businessrules.dynamicpack.converter.FactModelConverterInterface;
+import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
+import com.barcelo.integration.engine.model.api.request.pack.TOProductAvailabilityRQ;
+import com.barcelo.integration.engine.model.api.response.pack.TOProductAvailabilityRS;
+
+import lombok.extern.slf4j.Slf4j;
 
 import static org.joda.time.Days.daysBetween;
 import static org.junit.Assert.assertEquals;
@@ -9,7 +21,42 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author dag-vsf
  */
+@Slf4j
 public class FactModelConverterImplTest {
+	@org.junit.Test
+	public void testToModelInterface1() throws Exception {
+		long start = System.currentTimeMillis();
+		JAXBContext jaxbContextRQ = JAXBContext.newInstance(/* "com.barcelo.integration.engine.model.api" */ TOProductAvailabilityRQ.class);
+		log.info("Inicializando contexto en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		JAXBContext jaxbContextRS = JAXBContext.newInstance(/* "com.barcelo.integration.engine.model.api" */ TOProductAvailabilityRS.class);
+		log.info("Inicializando contexto en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		Unmarshaller jaxbUnmarshaller = jaxbContextRQ.createUnmarshaller();
+		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		File file1 = new File("src/test/resources/1.xml");
+		TOProductAvailabilityRQ toProductAvailabilityRQ = (TOProductAvailabilityRQ) jaxbUnmarshaller.unmarshal(file1);
+		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		jaxbUnmarshaller = jaxbContextRS.createUnmarshaller();
+		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		File file2 = new File("src/test/resources/ej_PD_JOL_F_Mallorca_optimizada.xml");
+		TOProductAvailabilityRS toProductAvailabilityRS = (TOProductAvailabilityRS) jaxbUnmarshaller.unmarshal(file2);
+		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		FactModelConverterInterface factModelConverter = new FactModelConverterImpl();
+		DynamicPackage dynamicPackage = factModelConverter.toModelInterface(toProductAvailabilityRQ, toProductAvailabilityRS);
+		log.info("To Model Interface en : " + (System.currentTimeMillis() - start));
+	}
+
 	/**
 	 * From http://stackoverflow.com/questions/3802893/number-of-days-between-two-dates-in-joda-time
 	 * @throws Exception

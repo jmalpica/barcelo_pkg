@@ -1,13 +1,14 @@
 package com.barcelo.businessrules.dynamicpack.converter.impl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -17,46 +18,68 @@ import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
 import com.barcelo.businessrules.model.api.dynamicpack.TransportDistribution;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductAvailabilityRQ;
 import com.barcelo.integration.engine.model.api.response.pack.TOProductAvailabilityRS;
+import com.barcelo.integration.engine.model.api.shared.Price;
 import com.barcelo.integration.engine.model.api.shared.auth.Retail;
 import com.barcelo.integration.engine.model.api.shared.auth.Wholesaler;
 import com.barcelo.integration.engine.model.api.shared.pack.*;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author dag-vsf
  */
 @Service(FactModelConverterInterface.SERVICENAME)
 @Scope("prototype")
+@Slf4j
 public class FactModelConverterImpl implements FactModelConverterInterface {
+	private DynamicPackage dynamicPackage;
+	private DateTime bookingDate;
+
+	private static final String REENTRANCY_ERROR = new StringBuilder()
+			.append("Class misuse: This class")
+			.append(" FactModelConverterImpl")
+			.append(" is not meant to be re-entrant, each invocation to")
+			.append(" toModelInterface requires a new instance of the class. If you are using Spring")
+			.append(" to provide you the instance you are calling, ensure it is configured properly")
+			.append(" as a prototype, and not as a singleton. And ask Spring for a new instance for")
+			.append(" each invocation.").toString();
+
 	public DynamicPackage toModelInterface(TOProductAvailabilityRQ toProductAvailabilityRQ,
 										   TOProductAvailabilityRS toProductAvailabilityRS) {
-		DynamicPackage result = new DynamicPackage();
+		if (this.dynamicPackage != null) {
+			log.error(REENTRANCY_ERROR);
+			throw new IllegalStateException("FactModelConverterImpl has been already used.");
+		}
+
+		bookingDate = DateTime.now();
+		this.dynamicPackage = new DynamicPackage();
 		List<String> brandList = toProductAvailabilityRQ.getBrandList();
 		if (brandList != null && brandList.size() > 0) {
 			// TODO - dag-vsf - 29/01/2015 - Revisar modelo para poder guardar todas las marcas del paquete
-			result.setBrand(brandList.get(0));
+			this.dynamicPackage.setBrand(brandList.get(0));
 		}
 		if (toProductAvailabilityRQ.getPOS() != null && toProductAvailabilityRQ.getPOS().getSource() != null) {
 			Retail retail = toProductAvailabilityRQ.getPOS().getSource().getRetail();
 			if (retail != null) {
-				result.setChannel(retail.getChannel());
-				result.setSubChannel(retail.getSubChannel());
+				this.dynamicPackage.setChannel(retail.getChannel());
+				this.dynamicPackage.setSubChannel(retail.getSubChannel());
 			}
 			Wholesaler wholesaler = toProductAvailabilityRQ.getPOS().getSource().getWholesaler();
 			if (wholesaler != null) {
-				result.setManagementGroup(wholesaler.getManagementGroup());
-				result.setAgency(wholesaler.getAgency());
-				result.setBranchOffice(wholesaler.getBranchOffice());
+				this.dynamicPackage.setManagementGroup(wholesaler.getManagementGroup());
+				this.dynamicPackage.setAgency(wholesaler.getAgency());
+				this.dynamicPackage.setBranchOffice(wholesaler.getBranchOffice());
 			}
 		}
-		result.setBookingDate(toProductAvailabilityRQ.getFromDate());
+		this.dynamicPackage.setBookingDate(bookingDate.toDate());
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(result.getBookingDate());
+		calendar.setTime(this.dynamicPackage.getBookingDate());
 		int bookingWeekday = calendar.get(Calendar.DAY_OF_WEEK);
-		result.setBookingWeekday(bookingWeekday);
+		this.dynamicPackage.setBookingWeekday(bookingWeekday);
 
-		result.setComponentDistributionList(extractComponents(toProductAvailabilityRS));
+		this.dynamicPackage.setComponentDistributionList(extractComponents(toProductAvailabilityRS));
 
-		return result;
+		return this.dynamicPackage;
 	}
 
 	private List<ComponentDistribution> extractComponents(TOProductAvailabilityRS toProductAvailabilityRS) {
@@ -101,22 +124,21 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 	private void flattenTransport(List<ComponentDistribution> result, Transport transport) {
 		TransportDistribution transportDistribution = new TransportDistribution();
 
+		transportDistribution.setDynamicPackage(this.dynamicPackage);
+
 		Date departureDate = transport.getDepartureDateTime();
 		transportDistribution.setStartDateTime(departureDate);
 		Date arrivalDate = transport.getArrivalDateTime();
 		transportDistribution.setEndDateTime(arrivalDate);
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(departureDate);
-		transportDistribution.setStartWeekday(calendar.get(Calendar.DAY_OF_WEEK));
-		calendar.setTime(arrivalDate);
-		transportDistribution.setEndWeekday(calendar.get(Calendar.DAY_OF_WEEK));
+		transportDistribution.setStartWeekday(calculateWeekday(departureDate));
+		transportDistribution.setEndWeekday(calculateWeekday(arrivalDate));
 
 		/* Calculo de los días de estancia (aunque es un transporte). Usando JodaTime, no se usa withTimeAtStartOfDay
 		 * porque falla en zonas horarias en las que la hora que se añade o elimina es la primera del día */
-		LocalDate departureLocalDate = new LocalDate(departureDate.getTime());
-		LocalDate arrivalLocalDate = new LocalDate(arrivalDate.getTime());
-		transportDistribution.setStayQuantity(Days.daysBetween(departureLocalDate, arrivalLocalDate).getDays());
+		transportDistribution.setStayQuantity(daysBetween(departureDate, arrivalDate));
+
+		transportDistribution.setDaysInAdvance(daysBetween(bookingDate.toDate(), departureDate));
 
 		/* Hay que acumular todas las compañias de todos los segmentos de todos los itinerarios,
 		 * así que usaremos esta lista para hacerlo.
@@ -137,8 +159,32 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 							if (transportDistribution.getPriceInformationRef() == null) {
 								// Primer precio, lo tomamos como referencia a modificar
 								transportDistribution.setPriceInformationRef(priceInformation);
+								Price commissionableAmount = priceInformation.getCommissionableAmount();
+								transportDistribution.setCommissionableAmount(commissionableAmount.getPrice());
+								Price nonCommissionableAmount = priceInformation.getNonCommissionableAmount();
+								transportDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
+								Price commissionAmount = priceInformation.getCommissionAmount();
+								transportDistribution.setCommissionAmount(commissionAmount.getPrice());
+								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
+								transportDistribution.setTaxAmount(commissionTaxesAmount.getPrice());
 							} else {
-								// precios adicionales, aún pendiente de definir que hacer con ellos
+								// Precios adicionales, acumularlos
+								BigDecimal commissionableAmount = transportDistribution.getCommissionableAmount();
+								commissionableAmount = commissionableAmount.add(
+										priceInformation.getCommissionableAmount().getPrice());
+								transportDistribution.setCommissionableAmount(commissionableAmount);
+								BigDecimal nonCommissionableAmount = transportDistribution.getNonCommissionableAmount();
+								nonCommissionableAmount = nonCommissionableAmount.add(
+										priceInformation.getNonCommissionableAmount().getPrice());
+								transportDistribution.setNonCommissionableAmount(nonCommissionableAmount);
+								BigDecimal commissionAmount = transportDistribution.getCommissionAmount();
+								commissionAmount = commissionAmount.add(
+										priceInformation.getCommissionAmount().getPrice());
+								transportDistribution.setCommissionAmount(commissionAmount);
+								BigDecimal commissionTaxesAmount = transportDistribution.getTaxAmount();
+								commissionTaxesAmount = commissionTaxesAmount.add(
+										priceInformation.getCommissionTaxesAmount().getPrice());
+								transportDistribution.setTaxAmount(commissionTaxesAmount);
 							}
 
 							if (itineraryOption.getProvider() != null) {
@@ -173,5 +219,17 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 				}
 			}
 		}
+	}
+
+	private final Calendar weekdayCalendar = Calendar.getInstance();
+	private int calculateWeekday(Date date) {
+		weekdayCalendar.setTime(date);
+		return weekdayCalendar.get(Calendar.DAY_OF_WEEK);
+	}
+
+	private int daysBetween(Date startDate, Date endDate) {
+		LocalDate departureLocalDate = new LocalDate(startDate.getTime());
+		LocalDate arrivalLocalDate = new LocalDate(endDate.getTime());
+		return Days.daysBetween(departureLocalDate, arrivalLocalDate).getDays();
 	}
 }

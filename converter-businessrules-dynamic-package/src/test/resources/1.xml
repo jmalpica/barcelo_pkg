@@ -1,0 +1,28 @@
+<toProductAvailabilityRQ
+manualServiceCombination = "true"
+nonStop="false"
+transportType="FLIGHT"
+iataDestination="PMI"
+iataOrigin="MAD"
+maxWaitTime="100000"
+categoryCode="a83d970b-c783-49aa"
+numberOfNights="7"
+fromDate="2015-01-24T00:00:00.000+02:00"
+destinationType="COMMERCIAL_DESTINATION"
+destinationCode="COMERCIAL40">
+   <POS>
+      <Source session="sergi-soap" system="PD_JOL_F" locale="es_ES">
+         <RequestorID agentPassword="LEO2014" agentID="US_SOPORTELEO" user="PD_JOL_F" office="17" company="E00" messagePassword="BVINT"/>
+         <Retail subChannel="BOAJOLIDEY" channel="B2B"/>
+         <Wholesaler branchOffice="BARCEL0530" agency="C2463966" managementGroup="AP32047"/>
+      </Source>
+   </POS>
+   <BrandList>047011</BrandList>
+   <TravellerGroupList groupID="1">
+      <TravellerList resident="false" age="30" index="11"/>
+      <TravellerList resident="false" age="30" index="12"/>
+   </TravellerGroupList>
+   <AdditionalTransportDetails returnType="ROUND_TRIP" lowCost="true"/>
+   <AdditionalFilterList value="false" informationID="transfersRequired"/>
+   <AdditionalFilterList value="false" informationID="carHireRequired"/>
+</toProductAvailabilityRQ>
