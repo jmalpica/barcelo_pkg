@@ -55,6 +55,8 @@ public class FactModelConverterImplTest {
 		FactModelConverterInterface factModelConverter = new FactModelConverterImpl();
 		DynamicPackage dynamicPackage = factModelConverter.toModelInterface(toProductAvailabilityRQ, toProductAvailabilityRS);
 		log.info("To Model Interface en : " + (System.currentTimeMillis() - start));
+
+		dynamicPackage.getComponentDistributionList().size();
 	}
 
 	/**

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.barcelo.businessrules.dynamicpack.converter.FactModelConverterInterface;
 import com.barcelo.businessrules.model.api.dynamicpack.ComponentDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
+import com.barcelo.businessrules.model.api.dynamicpack.HotelDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.TransportDistribution;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductAvailabilityRQ;
 import com.barcelo.integration.engine.model.api.response.pack.TOProductAvailabilityRS;
@@ -93,6 +94,8 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 					flattenTOPackage(result, toPackage);
 				} else if (toProduct instanceof Transport) {
 					flattenTransport(result, (Transport) toProduct);
+				} else if (toProduct instanceof Stay) {
+					flattenStay(result, (Stay) toProduct);
 				}
 
 			}
@@ -112,6 +115,8 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 							for (TOProduct toProduct1 : toProductList) {
 								if (toProduct1 instanceof Transport) {
 									flattenTransport(result, (Transport) toProduct1);
+								} else if (toProduct1 instanceof Stay) {
+									flattenStay(result, (Stay) toProduct1);
 								}
 							}
 						}
@@ -167,6 +172,8 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								transportDistribution.setCommissionAmount(commissionAmount.getPrice());
 								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
 								transportDistribution.setTaxAmount(commissionTaxesAmount.getPrice());
+
+								result.add(transportDistribution);
 							} else {
 								// Precios adicionales, acumularlos
 								BigDecimal commissionableAmount = transportDistribution.getCommissionableAmount();
@@ -191,8 +198,6 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								// TODO - dag-vsf - 29/01/2015 - que hacer con los proveedores distintos por itinerario
 								transportDistribution.setProvider(itineraryOption.getProvider().getProviderID());
 							}
-
-							result.add(transportDistribution);
 						}
 
 						List<Segment> segmentList = itineraryOption.getSegmentList();
@@ -214,6 +219,87 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								// TODO - dag-vsf - 29/01/2015 - que hacer con las cabinas distintas por segmento?
 								transportDistribution.setCabin(segmentList.get(0).getCabin());
 							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void flattenStay(List<ComponentDistribution> result, Stay stay) {
+		Date arrivalDate = stay.getArrivalDateTime();
+		Date departureDate = stay.getDepartureDateTime();
+		int startWeekday = calculateWeekday(arrivalDate);
+		int endWeekday = calculateWeekday(departureDate);
+		int daysInAdvance = daysBetween(bookingDate.toDate(), arrivalDate);
+
+		List<StayMealPlan> stayMealPlanList = stay.getMealPlanList();
+		if (stayMealPlanList != null) {
+			for (StayMealPlan stayMealPlan : stayMealPlanList) {
+				List<StayOption> optionList = stayMealPlan.getOptionList();
+				if (optionList != null) {
+					for (StayOption stayOption : optionList) {
+						TOPriceInformation priceInformation = stayOption.getPriceInformation();
+						if (priceInformation != null) {
+							HotelDistribution hotelDistribution = new HotelDistribution();
+
+							hotelDistribution.setDynamicPackage(this.dynamicPackage);
+
+							hotelDistribution.setStartDateTime(arrivalDate);
+							hotelDistribution.setEndDateTime(departureDate);
+
+							hotelDistribution.setStartWeekday(startWeekday);
+							hotelDistribution.setEndWeekday(endWeekday);
+
+							hotelDistribution.setDaysInAdvance(daysInAdvance);
+
+							hotelDistribution.setChain(stay.getHotelChainID());
+							hotelDistribution.setHotel(stay.getBhc());
+							// TODO - dag-vsf - 30/01/2015 - Necesitamos confirmación de cual es el campo correspondiente del modelo
+							hotelDistribution.setHotelType("PENDIENTE");
+							hotelDistribution.setCategory(stay.getCategoryID());
+							hotelDistribution.setAccommodationType(stayOption.getOriginMealPlanID());
+							hotelDistribution.setNightQuantity(stay.getNightQuantity());
+
+							hotelDistribution.setRateType(stayOption.getContractID());
+
+							if (hotelDistribution.getPriceInformationRef() == null) {
+								// Primer precio, lo tomamos como referencia a modificar
+								hotelDistribution.setPriceInformationRef(priceInformation);
+								Price commissionableAmount = priceInformation.getCommissionableAmount();
+								hotelDistribution.setCommissionableAmount(commissionableAmount.getPrice());
+								Price nonCommissionableAmount = priceInformation.getNonCommissionableAmount();
+								hotelDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
+								Price commissionAmount = priceInformation.getCommissionAmount();
+								hotelDistribution.setCommissionAmount(commissionAmount.getPrice());
+								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
+								hotelDistribution.setTaxAmount(commissionTaxesAmount.getPrice());
+							} else {
+								// Precios adicionales, acumularlos
+								BigDecimal commissionableAmount = hotelDistribution.getCommissionableAmount();
+								commissionableAmount = commissionableAmount.add(
+										priceInformation.getCommissionableAmount().getPrice());
+								hotelDistribution.setCommissionableAmount(commissionableAmount);
+								BigDecimal nonCommissionableAmount = hotelDistribution.getNonCommissionableAmount();
+								nonCommissionableAmount = nonCommissionableAmount.add(
+										priceInformation.getNonCommissionableAmount().getPrice());
+								hotelDistribution.setNonCommissionableAmount(nonCommissionableAmount);
+								BigDecimal commissionAmount = hotelDistribution.getCommissionAmount();
+								commissionAmount = commissionAmount.add(
+										priceInformation.getCommissionAmount().getPrice());
+								hotelDistribution.setCommissionAmount(commissionAmount);
+								BigDecimal commissionTaxesAmount = hotelDistribution.getTaxAmount();
+								commissionTaxesAmount = commissionTaxesAmount.add(
+										priceInformation.getCommissionTaxesAmount().getPrice());
+								hotelDistribution.setTaxAmount(commissionTaxesAmount);
+							}
+
+							if (stayOption.getProvider() != null) {
+								// TODO - dag-vsf - 29/01/2015 - que hacer con los proveedores distintos por itinerario
+								hotelDistribution.setProvider(stayOption.getProvider().getProviderID());
+							}
+
+							result.add(hotelDistribution);
 						}
 					}
 				}
