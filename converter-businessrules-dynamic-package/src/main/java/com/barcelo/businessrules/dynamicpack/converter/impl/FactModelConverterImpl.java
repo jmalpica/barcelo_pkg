@@ -23,6 +23,8 @@ import com.barcelo.integration.engine.model.api.shared.Price;
 import com.barcelo.integration.engine.model.api.shared.auth.Retail;
 import com.barcelo.integration.engine.model.api.shared.auth.Wholesaler;
 import com.barcelo.integration.engine.model.api.shared.pack.*;
+import com.barcelo.integration.engine.model.api.shared.traveller.Traveller;
+import com.barcelo.integration.engine.model.api.shared.traveller.TravellerGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,6 +79,20 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		calendar.setTime(this.dynamicPackage.getBookingDate());
 		int bookingWeekday = calendar.get(Calendar.DAY_OF_WEEK);
 		this.dynamicPackage.setBookingWeekday(bookingWeekday);
+
+		List<com.barcelo.businessrules.model.api.dynamicpack.Traveller> travellers =
+				new ArrayList<com.barcelo.businessrules.model.api.dynamicpack.Traveller> ();
+		List<TravellerGroup> travellerGroupList = toProductAvailabilityRQ.getTravellerGroupList();
+		for (TravellerGroup travellerGroup : travellerGroupList) {
+			List<Traveller> travellerList = travellerGroup.getTravellerList();
+			for (Traveller travellerOrigin : travellerList) {
+				com.barcelo.businessrules.model.api.dynamicpack.Traveller traveller =
+						new com.barcelo.businessrules.model.api.dynamicpack.Traveller();
+				traveller.setAge(travellerOrigin.getAge());
+				travellers.add(traveller);
+			}
+		}
+		this.dynamicPackage.setTravellerList(travellers);
 
 		this.dynamicPackage.setComponentDistributionList(extractComponents(toProductAvailabilityRS));
 
