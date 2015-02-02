@@ -25,6 +25,7 @@ public abstract class ComponentDistribution {
 	private String travellerType;
 	private String travellerAgeType;
 	private String provider;
+	private String season;
 
 	// The following ones will be filled by the business rules
 

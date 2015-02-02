@@ -20,5 +20,6 @@ public class DynamicPackage {
 	private String branchOffice;
 	private Date bookingDate;
 	private int bookingWeekday;
+	private List<Traveller> travellerList;
 	private List<ComponentDistribution> componentDistributionList;
 }
