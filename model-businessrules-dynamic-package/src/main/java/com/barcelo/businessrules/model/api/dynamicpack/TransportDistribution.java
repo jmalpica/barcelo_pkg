@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 public class TransportDistribution extends ComponentDistribution {
 	private String originGroup;
 	private String routeType;
-	private List<String> company;
+	private List<String> companyList;
 	private String cabin;
 	private int segmentCount;
 	private int stayQuantity;

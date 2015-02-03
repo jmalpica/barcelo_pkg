@@ -15,6 +15,6 @@ public class HotelDistribution extends ComponentDistribution {
 	private String hotel;
 	private String hotelType;
 	private String category;
-	private String accommodationType;
+	private String mealPlan;
 	private int nightQuantity;
 }
