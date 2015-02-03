@@ -164,7 +164,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		/* Hay que acumular todas las compañias de todos los segmentos de todos los itinerarios,
 		 * así que usaremos esta lista para hacerlo.
 		 */
-		transportDistribution.setCompany(new ArrayList<String>());
+		transportDistribution.setCompanyList(new ArrayList<String>());
 
 		// fijar el punto de partida para la acumulación de escalas
 		transportDistribution.setSegmentCount(0);
@@ -231,7 +231,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 									company.add(segment.getCompany());
 								}
 								// Y acumulalas al resto.
-								transportDistribution.getCompany().addAll(company);
+								transportDistribution.getCompanyList().addAll(company);
 								// TODO - dag-vsf - 29/01/2015 - que hacer con las cabinas distintas por segmento?
 								transportDistribution.setCabin(segmentList.get(0).getCabin());
 							}
@@ -274,7 +274,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 							// TODO - dag-vsf - 30/01/2015 - Necesitamos confirmación de cual es el campo correspondiente del modelo
 							hotelDistribution.setHotelType("PENDIENTE");
 							hotelDistribution.setCategory(stay.getCategoryID());
-							hotelDistribution.setAccommodationType(stayOption.getOriginMealPlanID());
+							hotelDistribution.setMealPlan(stayOption.getOriginMealPlanID());
 							hotelDistribution.setNightQuantity(stay.getNightQuantity());
 
 							hotelDistribution.setRateType(stayOption.getContractID());
