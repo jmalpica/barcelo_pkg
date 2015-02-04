@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
-import com.barcelo.integration.engine.model.api.shared.pack.TOPriceInformation;
-
 import lombok.Data;
 
 /**
@@ -45,7 +43,7 @@ public abstract class ComponentDistribution {
 	/**
 	 * Reference kept to be able to streamline the JAXB model modification
  	 */
-	private TOPriceInformation priceInformationRef;
+	private Object priceInformationRef;
 
 	private void calculate() {
 		BigDecimal ttooCost = this.commissionableAmount.add(this.nonCommissionableAmount);
