@@ -26,7 +26,8 @@ public class ApiModelConverterImpl implements ApiModelConverterInterface {
 		 * so we can make the required changes.
 		 */
 		for (ComponentDistribution componentDistribution : dynamicPackage.getComponentDistributionList()) {
-			TOPriceInformation priceInformationRef = componentDistribution.getPriceInformationRef();
+			TOPriceInformation priceInformationRef =
+					(TOPriceInformation) componentDistribution.getPriceInformationRef();
 			String isoCurrency = priceInformationRef.getCommissionableAmount().getISOCurrency();
 
 			Price totalAmount = new Price();

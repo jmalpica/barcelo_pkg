@@ -6,14 +6,18 @@ import org.kie.api.logger.KieRuntimeLogger;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.StatelessKieSession;
+import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author dag-vsf
  */
+@Component(DecisionManager.SERVICENAME)
 @Slf4j
 public class DecisionManager {
+	public static final String SERVICENAME = "decisionManager";
+
 	public StatelessKieSession createKieSession() {
 		long start = System.currentTimeMillis();
 
