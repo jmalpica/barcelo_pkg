@@ -31,7 +31,7 @@ public class ApiModelConverterImpl implements ApiModelConverterInterface {
 			String isoCurrency = priceInformationRef.getCommissionableAmount().getISOCurrency();
 
 			Price totalAmount = new Price();
-			totalAmount.setPrice(componentDistribution.getSuggestedRetailPrice());
+			totalAmount.setPrice(componentDistribution.getTotalAmount());
 			totalAmount.setISOCurrency(isoCurrency);
 			priceInformationRef.setTotalAmount(totalAmount);
 
@@ -41,11 +41,9 @@ public class ApiModelConverterImpl implements ApiModelConverterInterface {
 			priceInformationRef.setCommissionAmount(commissionAmount);
 
 			Price commissionTaxesAmount = new Price();
-			commissionTaxesAmount.setPrice(componentDistribution.getTaxAmount());
+			commissionTaxesAmount.setPrice(componentDistribution.getCommissionTaxesAmount());
 			commissionTaxesAmount.setISOCurrency(isoCurrency);
 			priceInformationRef.setCommissionTaxesAmount(commissionTaxesAmount);
-
-			// TODO - dag-vsf - 03/02/2015 - We are missing an spot for the agency net price
 		}
 	}
 }

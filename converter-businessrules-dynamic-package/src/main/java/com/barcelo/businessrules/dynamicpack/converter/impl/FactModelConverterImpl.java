@@ -187,7 +187,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								Price commissionAmount = priceInformation.getCommissionAmount();
 								transportDistribution.setCommissionAmount(commissionAmount.getPrice());
 								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
-								transportDistribution.setTaxAmount(commissionTaxesAmount.getPrice());
+								transportDistribution.setCommissionTaxesAmount(commissionTaxesAmount.getPrice());
 
 								result.add(transportDistribution);
 							} else {
@@ -204,10 +204,10 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								commissionAmount = commissionAmount.add(
 										priceInformation.getCommissionAmount().getPrice());
 								transportDistribution.setCommissionAmount(commissionAmount);
-								BigDecimal commissionTaxesAmount = transportDistribution.getTaxAmount();
+								BigDecimal commissionTaxesAmount = transportDistribution.getCommissionTaxesAmount();
 								commissionTaxesAmount = commissionTaxesAmount.add(
 										priceInformation.getCommissionTaxesAmount().getPrice());
-								transportDistribution.setTaxAmount(commissionTaxesAmount);
+								transportDistribution.setCommissionTaxesAmount(commissionTaxesAmount);
 							}
 
 							if (itineraryOption.getProvider() != null) {
@@ -289,7 +289,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								Price commissionAmount = priceInformation.getCommissionAmount();
 								hotelDistribution.setCommissionAmount(commissionAmount.getPrice());
 								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
-								hotelDistribution.setTaxAmount(commissionTaxesAmount.getPrice());
+								hotelDistribution.setCommissionTaxesAmount(commissionTaxesAmount.getPrice());
 							} else {
 								// Precios adicionales, acumularlos
 								BigDecimal commissionableAmount = hotelDistribution.getCommissionableAmount();
@@ -304,10 +304,10 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 								commissionAmount = commissionAmount.add(
 										priceInformation.getCommissionAmount().getPrice());
 								hotelDistribution.setCommissionAmount(commissionAmount);
-								BigDecimal commissionTaxesAmount = hotelDistribution.getTaxAmount();
+								BigDecimal commissionTaxesAmount = hotelDistribution.getCommissionTaxesAmount();
 								commissionTaxesAmount = commissionTaxesAmount.add(
 										priceInformation.getCommissionTaxesAmount().getPrice());
-								hotelDistribution.setTaxAmount(commissionTaxesAmount);
+								hotelDistribution.setCommissionTaxesAmount(commissionTaxesAmount);
 							}
 
 							if (stayOption.getProvider() != null) {

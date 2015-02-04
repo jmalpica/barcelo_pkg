@@ -35,9 +35,9 @@ public abstract class ComponentDistribution {
 	private BigDecimal profitabilityRate;
 	private BigDecimal profitabilityAmount;
 	private boolean maxCommissionExceeded;
-	private BigDecimal taxAmount;
-	private BigDecimal suggestedRetailPrice;
-	private BigDecimal agencyNetPrice;
+	private BigDecimal commissionTaxesAmount;
+	private BigDecimal totalAmount;
+	private BigDecimal totalCommissionableAmount;
 	private boolean profitabilityWarning;
 
 	/**
@@ -52,34 +52,32 @@ public abstract class ComponentDistribution {
 		BigDecimal suggestedRetailPriceDenominator = this.profitabilityRate.subtract(BigDecimal.ONE);
 		suggestedRetailPriceDenominator = suggestedRetailPriceDenominator.add(this.commissionRate);
 		BigDecimal suggestedRetailPriceNumerator = this.commissionAmount.subtract(ttooCost);
-		this.suggestedRetailPrice = suggestedRetailPriceNumerator.divide(suggestedRetailPriceDenominator, 2,
+		this.totalAmount = suggestedRetailPriceNumerator.divide(suggestedRetailPriceDenominator, 2,
 				RoundingMode.HALF_EVEN);
 		BigDecimal agencyNetPriceSubtrahend = this.taxRate.add(BigDecimal.ONE).multiply(this.commissionAmount);
-		this.agencyNetPrice = this.suggestedRetailPrice.subtract(agencyNetPriceSubtrahend);
-		this.taxAmount = this.commissionAmount.multiply(this.taxRate);
+		this.totalCommissionableAmount = this.totalAmount.subtract(agencyNetPriceSubtrahend);
+		this.commissionTaxesAmount = this.commissionAmount.multiply(this.taxRate);
 	}
 
 	private void calculate2() {
 		BigDecimal ttooCost = this.commissionableAmount.add(this.nonCommissionableAmount);
-		BigDecimal nonCommissionAmount = this.nonCommissionableAmount.multiply(this.commissionRate);
-		nonCommissionAmount = nonCommissionAmount.subtract(this.overCommissionAmount);
-		BigDecimal suggestedRetailPriceDenominator = this.profitabilityRate.subtract(BigDecimal.ONE);
-		suggestedRetailPriceDenominator = suggestedRetailPriceDenominator.add(this.commissionRate);
-		BigDecimal suggestedRetailPriceNumerator = nonCommissionAmount.subtract(ttooCost);
-		this.suggestedRetailPrice = suggestedRetailPriceNumerator.divide(suggestedRetailPriceDenominator, 3,
+		BigDecimal totalAmountNumerator = this.nonCommissionableAmount.multiply(this.commissionRate);
+		totalAmountNumerator = totalAmountNumerator.subtract(this.overCommissionAmount);
+		totalAmountNumerator = totalAmountNumerator.subtract(ttooCost);
+		BigDecimal totalAmountDenominator = this.profitabilityRate.subtract(BigDecimal.ONE);
+		totalAmountDenominator = totalAmountDenominator.add(this.commissionRate);
+		this.totalAmount = totalAmountNumerator.divide(totalAmountDenominator, 3,
 				RoundingMode.HALF_UP);
-		this.commissionAmount = this.suggestedRetailPrice.subtract(this.nonCommissionableAmount);
-		this.commissionAmount = this.commissionAmount.multiply(this.commissionRate);
+		this.totalCommissionableAmount = this.totalAmount.subtract(this.nonCommissionableAmount);
+		this.commissionAmount = this.totalCommissionableAmount.multiply(this.commissionRate);
 		this.commissionAmount = this.commissionAmount.add(this.overCommissionAmount);
-		BigDecimal agencyNetPriceSubtrahend = this.taxRate.add(BigDecimal.ONE).multiply(this.commissionAmount);
-		this.agencyNetPrice = this.suggestedRetailPrice.subtract(agencyNetPriceSubtrahend);
-		this.taxAmount = this.commissionAmount.multiply(this.taxRate);
+		this.commissionTaxesAmount = this.commissionAmount.multiply(this.taxRate);
 
 		// Rounding stage
-		this.suggestedRetailPrice = this.suggestedRetailPrice.setScale(2, RoundingMode.HALF_UP);
+		this.totalAmount = this.totalAmount.setScale(2, RoundingMode.HALF_UP);
+		this.totalCommissionableAmount = this.totalCommissionableAmount.setScale(2, RoundingMode.HALF_UP);
 		this.commissionAmount = this.commissionAmount.setScale(2, RoundingMode.HALF_UP);
-		this.agencyNetPrice = this.agencyNetPrice.setScale(2, RoundingMode.HALF_UP);
-		this.taxAmount = this.taxAmount.setScale(2, RoundingMode.HALF_UP);
+		this.commissionTaxesAmount = this.commissionTaxesAmount.setScale(2, RoundingMode.HALF_UP);
 	}
 
 	public void calculatePrices() {

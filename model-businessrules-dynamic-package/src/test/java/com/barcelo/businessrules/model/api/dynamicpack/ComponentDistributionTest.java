@@ -23,10 +23,10 @@ public class ComponentDistributionTest {
 		componentDistribution.setProfitabilityRate(new BigDecimal("0.06"));
 		componentDistribution.setProfitabilityAmount(BigDecimal.ZERO);
 		componentDistribution.calculatePrices();
-		Assert.assertEquals(new BigDecimal("559.39"), componentDistribution.getSuggestedRetailPrice());
+		Assert.assertEquals(new BigDecimal("559.39"), componentDistribution.getTotalAmount());
+		Assert.assertEquals(new BigDecimal("559.39"), componentDistribution.getTotalCommissionableAmount());
 		Assert.assertEquals(new BigDecimal("77.13"), componentDistribution.getCommissionAmount());
-		Assert.assertEquals(new BigDecimal("466.07"), componentDistribution.getAgencyNetPrice());
-		Assert.assertEquals(new BigDecimal("16.20"), componentDistribution.getTaxAmount());
+		Assert.assertEquals(new BigDecimal("16.20"), componentDistribution.getCommissionTaxesAmount());
 	}
 
 	@org.junit.Test
@@ -42,10 +42,10 @@ public class ComponentDistributionTest {
 		componentDistribution.setProfitabilityRate(new BigDecimal("0.025"));
 		componentDistribution.setProfitabilityAmount(BigDecimal.ZERO);
 		componentDistribution.calculatePrices();
-		Assert.assertEquals(new BigDecimal("2140.54"), componentDistribution.getSuggestedRetailPrice());
+		Assert.assertEquals(new BigDecimal("2140.54"), componentDistribution.getTotalAmount());
+		Assert.assertEquals(new BigDecimal("1413.08"), componentDistribution.getTotalCommissionableAmount());
 		Assert.assertEquals(new BigDecimal("169.57"), componentDistribution.getCommissionAmount());
-		Assert.assertEquals(new BigDecimal("1935.36"), componentDistribution.getAgencyNetPrice());
-		Assert.assertEquals(new BigDecimal("35.61"), componentDistribution.getTaxAmount());
+		Assert.assertEquals(new BigDecimal("35.61"), componentDistribution.getCommissionTaxesAmount());
 	}
 
 	@org.junit.Test
@@ -61,10 +61,10 @@ public class ComponentDistributionTest {
 		componentDistribution.setProfitabilityRate(new BigDecimal("0.02"));
 		componentDistribution.setProfitabilityAmount(BigDecimal.ZERO);
 		componentDistribution.calculatePrices();
-		Assert.assertEquals(new BigDecimal("165.26"), componentDistribution.getSuggestedRetailPrice());
+		Assert.assertEquals(new BigDecimal("165.26"), componentDistribution.getTotalAmount());
+		Assert.assertEquals(new BigDecimal("165.26"), componentDistribution.getTotalCommissionableAmount());
 		Assert.assertEquals(new BigDecimal("21.87"), componentDistribution.getCommissionAmount());
-		Assert.assertEquals(new BigDecimal("138.79"), componentDistribution.getAgencyNetPrice());
-		Assert.assertEquals(new BigDecimal("4.59"), componentDistribution.getTaxAmount());
+		Assert.assertEquals(new BigDecimal("4.59"), componentDistribution.getCommissionTaxesAmount());
 	}
 
 	// @org.junit.Ignore("Fails because of rounding")
@@ -81,9 +81,9 @@ public class ComponentDistributionTest {
 		componentDistribution.setProfitabilityRate(new BigDecimal("0.005"));
 		componentDistribution.setProfitabilityAmount(BigDecimal.ZERO);
 		componentDistribution.calculatePrices();
-		Assert.assertEquals(new BigDecimal("156.12"), componentDistribution.getSuggestedRetailPrice());
+		Assert.assertEquals(new BigDecimal("156.12"), componentDistribution.getTotalAmount());
+		Assert.assertEquals(new BigDecimal("94.96"), componentDistribution.getTotalCommissionableAmount());
 		Assert.assertEquals(new BigDecimal("11.39"), componentDistribution.getCommissionAmount());
-		Assert.assertEquals(new BigDecimal("142.33"), componentDistribution.getAgencyNetPrice());
-		Assert.assertEquals(new BigDecimal("2.39"), componentDistribution.getTaxAmount());
+		Assert.assertEquals(new BigDecimal("2.39"), componentDistribution.getCommissionTaxesAmount());
 	}
 }
