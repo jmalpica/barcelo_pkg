@@ -4,7 +4,7 @@
 
 	<groupId>com.barcelo.businessrules.dynamicpack</groupId>
 	<artifactId>model-businessrules-dynamic-package</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>model-businessrules-dynamic-package</name>
 	<description>Modelo de datos del proyecto de paquete dinámico</description>

@@ -17,5 +17,4 @@ public class Traveller {
 	private int age;
 	private String ageType;
 	private String type;
-	private String name;
 }
