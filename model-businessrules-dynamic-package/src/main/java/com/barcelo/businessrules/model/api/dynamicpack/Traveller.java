@@ -1,6 +1,8 @@
 package com.barcelo.businessrules.model.api.dynamicpack;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Class that represents each of the travellers that are going to make use of the DynamicPackage.
@@ -8,6 +10,8 @@ import lombok.Data;
  * @author dag-vsf
  */
 @Data
+@EqualsAndHashCode(exclude = {"dynamicPackage"})
+@ToString(exclude = {"dynamicPackage"})
 public class Traveller {
 	private DynamicPackage dynamicPackage;
 	private int age;

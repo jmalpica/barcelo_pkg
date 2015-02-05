@@ -2,6 +2,7 @@ package com.barcelo.businessrules.model.api.dynamicpack;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Class that represents a Fact with all factors that influence the pricing of an Hotel
@@ -9,7 +10,8 @@ import lombok.EqualsAndHashCode;
  * @author dag-vsf
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"dynamicPackage"})
+@ToString(callSuper = true, exclude = {"dynamicPackage"})
 public class HotelDistribution extends ComponentDistribution {
 	private String chain;
 	private String hotel;
