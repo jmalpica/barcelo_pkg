@@ -81,13 +81,14 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		this.dynamicPackage.setBookingWeekday(bookingWeekday);
 
 		List<com.barcelo.businessrules.model.api.dynamicpack.Traveller> travellers =
-				new ArrayList<com.barcelo.businessrules.model.api.dynamicpack.Traveller> ();
+				new ArrayList<com.barcelo.businessrules.model.api.dynamicpack.Traveller>();
 		List<TravellerGroup> travellerGroupList = toProductAvailabilityRQ.getTravellerGroupList();
 		for (TravellerGroup travellerGroup : travellerGroupList) {
 			List<Traveller> travellerList = travellerGroup.getTravellerList();
 			for (Traveller travellerOrigin : travellerList) {
 				com.barcelo.businessrules.model.api.dynamicpack.Traveller traveller =
 						new com.barcelo.businessrules.model.api.dynamicpack.Traveller();
+				traveller.setDynamicPackage(this.dynamicPackage);
 				traveller.setAge(travellerOrigin.getAge());
 				travellers.add(traveller);
 			}

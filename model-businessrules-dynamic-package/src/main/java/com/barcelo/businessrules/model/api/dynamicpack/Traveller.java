@@ -9,6 +9,7 @@ import lombok.Data;
  */
 @Data
 public class Traveller {
+	private DynamicPackage dynamicPackage;
 	private int age;
 	private String ageType;
 	private String type;
