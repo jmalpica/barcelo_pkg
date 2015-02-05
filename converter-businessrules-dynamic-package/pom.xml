@@ -78,6 +78,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- dependency>
+			<groupId>com.barcelo.businessrules</groupId>
+			<artifactId>pkg-dinamico</artifactId>
+			<version>1.0</version>
+		</dependency -->
+		<!-- dependency>
 		    <groupId>org.eclipse.persistence</groupId>
 		    <artifactId>eclipselink</artifactId>
 		    <version>2.5.0</version>
@@ -147,4 +152,11 @@
 
 	<build>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>guvnor</id>
+			<url>http://192.168.6.184:8080/kiewb/maven2/</url>
+		</repository>
+	</repositories>
 </project>
