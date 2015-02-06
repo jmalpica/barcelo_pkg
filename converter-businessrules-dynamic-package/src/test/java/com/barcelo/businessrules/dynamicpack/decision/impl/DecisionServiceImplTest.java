@@ -76,6 +76,14 @@ public class DecisionServiceImplTest {
 		Assert.assertNotNull(this.decisionServiceInterface);
 		Assert.assertNotNull(this.toProductAvailabilityRQ);
 		Assert.assertNotNull(this.toProductAvailabilityRS);
-		decisionServiceInterface.calculatePrices(this.toProductAvailabilityRQ, this.toProductAvailabilityRS);
+		for (int ii = 0; ii < 10; ii++) {
+			decisionServiceInterface.calculatePrices(this.toProductAvailabilityRQ, this.toProductAvailabilityRS);
+
+			try {
+				Thread.sleep(20000);
+			} catch (InterruptedException e) {
+				log.warn("While sleeping", e);
+			}
+		}
 	}
 }

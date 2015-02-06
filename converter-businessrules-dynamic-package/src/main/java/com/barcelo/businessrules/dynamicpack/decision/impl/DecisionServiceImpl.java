@@ -3,6 +3,7 @@ package com.barcelo.businessrules.dynamicpack.decision.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.StatelessKieSession;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,28 +41,62 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 
 	public void calculatePrices(TOProductAvailabilityRQ toProductAvailabilityRQ,
 								TOProductAvailabilityRS toProductAvailabilityRS) {
+		log.info("Convirtiendo al modelo de hechos");
 		DynamicPackage dynamicPackage = toFactModel(toProductAvailabilityRQ, toProductAvailabilityRS);
+		log.info("Convirtiendo a lista de hechos");
 		List<Object> factList = addFacts(dynamicPackage);
-		StatelessKieSession statelessKieSession = decisionManager.createKieSession();
-		statelessKieSession.execute(factList);
+		log.info("Creando la sesion");
+		KieSession kieSession = decisionManager.createKieSession();
+		log.info("Insertando hechos");
+		for (Object fact : factList) {
+			kieSession.insert(fact);
+		}
+		log.info("Llamando a fireAllRules.");
+		kieSession.fireAllRules();
+		log.info("Eliminando la sesion.");
+		kieSession.dispose();
+		for (Traveller traveller : dynamicPackage.getTravellerList()) {
+			log.info("Traveller : {}", traveller);
+		}
+		/*
 		for (ComponentDistribution componentDistribution : dynamicPackage.getComponentDistributionList()) {
 			componentDistribution.calculatePrices();
 		}
+		*/
+		log.info("Convirtiendo al modelo JAXB.");
 		toApplicationModel(dynamicPackage, toProductAvailabilityRS);
 	}
 
-	public void calculatePreBookingPrices(TOProductAvailabilityRQ toProductAvailabilityRQ, TOProductAvailabilityRS toProductAvailabilityRS) {
+	public void calculatePreBookingPrices(TOProductAvailabilityRQ toProductAvailabilityRQ,
+										  TOProductAvailabilityRS toProductAvailabilityRS) {
+		log.info("Convirtiendo al modelo de hechos");
 		DynamicPackage dynamicPackage = toFactModel(toProductAvailabilityRQ, toProductAvailabilityRS);
+		log.info("Convirtiendo a lista de hechos");
 		List<Object> factList = addFacts(dynamicPackage);
-		StatelessKieSession statelessKieSession = decisionManager.createKieSession();
-		statelessKieSession.execute(factList);
+		log.info("Creando la sesion");
+		KieSession kieSession = decisionManager.createKieSession();
+		log.info("Insertando hechos");
+		for (Object fact : factList) {
+			kieSession.insert(fact);
+		}
+		log.info("Llamando a fireAllRules.");
+		kieSession.fireAllRules();
+		log.info("Eliminando la sesion.");
+		kieSession.dispose();
+		for (Traveller traveller : dynamicPackage.getTravellerList()) {
+			log.info("Traveller : {}", traveller);
+		}
+		/*
 		for (ComponentDistribution componentDistribution : dynamicPackage.getComponentDistributionList()) {
 			componentDistribution.calculatePreBookingPrices();
 		}
+		*/
+		log.info("Convirtiendo al modelo JAXB.");
 		toApplicationModel(dynamicPackage, toProductAvailabilityRS);
 	}
 
-	private DynamicPackage toFactModel(TOProductAvailabilityRQ toProductAvailabilityRQ, TOProductAvailabilityRS toProductAvailabilityRS) {
+	private DynamicPackage toFactModel(TOProductAvailabilityRQ toProductAvailabilityRQ,
+									   TOProductAvailabilityRS toProductAvailabilityRS) {
 		FactModelConverterInterface factModelConverterInterface;
 		if (factModelConverterInterfaceObjectFactory != null) {
 			factModelConverterInterface = factModelConverterInterfaceObjectFactory.getObject();
