@@ -13,8 +13,8 @@ import lombok.ToString;
  * @author dag-vsf
  */
 @Data
-@EqualsAndHashCode(exclude = {"travellerList, componentDistributionList"})
-@ToString(exclude = {"travellerList, componentDistributionList"})
+@EqualsAndHashCode(exclude = {"travellerList", "componentDistributionList"})
+@ToString(exclude = {"travellerList", "componentDistributionList"})
 public class DynamicPackage {
 	private String brand;
 	private String channel;
