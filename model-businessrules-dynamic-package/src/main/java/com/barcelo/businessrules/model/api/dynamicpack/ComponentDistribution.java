@@ -5,8 +5,6 @@ import java.math.RoundingMode;
 import java.util.Date;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * Base class for the Fact model for Drools rule set.
@@ -14,8 +12,6 @@ import lombok.ToString;
  * @author dag-vsf
  */
 @Data
-@EqualsAndHashCode(exclude = {"dynamicPackage"})
-@ToString(exclude = {"dynamicPackage"})
 public abstract class ComponentDistribution {
 	private DynamicPackage dynamicPackage;
 	private String rateType;

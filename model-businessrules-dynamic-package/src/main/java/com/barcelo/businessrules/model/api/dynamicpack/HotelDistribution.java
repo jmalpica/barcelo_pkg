@@ -10,8 +10,8 @@ import lombok.ToString;
  * @author dag-vsf
  */
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = {"dynamicPackage"})
-@ToString(callSuper = true, exclude = {"dynamicPackage"})
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class HotelDistribution extends ComponentDistribution {
 	private String chain;
 	private String hotel;

@@ -12,8 +12,8 @@ import lombok.ToString;
  * @author dag-vsf
  */
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = {"dynamicPackage"})
-@ToString(callSuper = true, exclude = {"dynamicPackage"})
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class TransportDistribution extends ComponentDistribution {
 	private String originGroup;
 	private String routeType;
