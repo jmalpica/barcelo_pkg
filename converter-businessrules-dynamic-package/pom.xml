@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>com.barcelo.businessrules.dynamicpack</groupId>
 			<artifactId>model-businessrules-dynamic-package</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>0.0.4-SNAPSHOT</version>
 		</dependency>
 		<!-- dependency>
 			<groupId>com.barcelo.businessrules</groupId>
@@ -156,7 +156,7 @@
 	<repositories>
 		<repository>
 			<id>guvnor</id>
-			<url>http://192.168.6.184:8080/kiewb/maven2/</url>
+			<url>http://192.168.6.184:8080/kiewb-6.2/maven2/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>

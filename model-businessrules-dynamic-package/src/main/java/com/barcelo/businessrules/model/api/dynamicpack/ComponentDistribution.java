@@ -93,4 +93,28 @@ public abstract class ComponentDistribution {
 		// Temporary implementations, until we get the differences between the two processes
 		calculate2();
 	}
+
+	public void addCommissionRate(BigDecimal delta) {
+		if (this.commissionRate == null) {
+			this.commissionRate = delta;
+		} else {
+			this.commissionRate = this.commissionRate.add(delta);
+		}
+	}
+
+	public void addOverCommissionAmount(BigDecimal delta) {
+		if (this.overCommissionAmount == null) {
+			this.overCommissionAmount = delta;
+		} else {
+			this.overCommissionAmount = this.overCommissionAmount.add(delta);
+		}
+	}
+
+	public void addProfitabilityRate(BigDecimal delta) {
+		if (this.profitabilityRate == null) {
+			this.profitabilityRate = delta;
+		} else {
+			this.profitabilityRate = this.profitabilityRate.add(delta);
+		}
+	}
 }
