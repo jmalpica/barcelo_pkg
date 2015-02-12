@@ -50,7 +50,7 @@ public class DecisionManager {
 		// String url = "http://192.168.6.184:8080/kiewb/maven2/";
 		// ks.getResources().newUrlResource(url);
 
-		ReleaseId releaseId = ks.newReleaseId("com.barcelo.businessrules", "pkg-dinamico", "1.2-SNAPSHOT");
+		ReleaseId releaseId = ks.newReleaseId("com.barcelo.businessrules", "pkg-dinamico", "LATEST");
 		kContainer = ks.newKieContainer(releaseId);
 		// KieContainer kContainer = ks.getKieClasspathContainer();
 		kieScanner = ks.newKieScanner(kContainer);
