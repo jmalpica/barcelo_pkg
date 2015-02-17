@@ -115,6 +115,13 @@ public abstract class ComponentDistribution {
 	}
 
 	/**
+	 * False getter because Guvnor doesn't seem to want to call addCommissionRate directly.
+	 */
+	public BigDecimal getAddCommissionRate() {
+		return this.commissionRate;
+	}
+
+	/**
 	 * False setter because Guvnor doesn't seem to want to call addCommissionRate directly.
 	 *
 	 * @param delta The value to add to the current commission rate
@@ -125,6 +132,13 @@ public abstract class ComponentDistribution {
 	}
 
 	/**
+	 * False getter because Guvnor doesn't seem to want to call addOverCommissionAmount directly.
+	 */
+	public BigDecimal getAddOverCommissionAmount() {
+		return this.overCommissionAmount;
+	}
+
+	/**
 	 * False setter because Guvnor doesn't seem to want to call addOverCommissionAmount directly.
 	 *
 	 * @param delta The value to add to the current over commission amount
@@ -132,6 +146,13 @@ public abstract class ComponentDistribution {
 	 */
 	public void setAddOverCommissionAmount(BigDecimal delta) {
 		addOverCommissionAmount(delta);
+	}
+
+	/**
+	 * False getter because Guvnor doesn't seem to want to call addProfitabilityRate directly.
+	 */
+	public BigDecimal getAddProfitabilityRate() {
+		return this.profitabilityRate;
 	}
 
 	/**
