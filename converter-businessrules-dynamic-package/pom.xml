@@ -77,11 +77,11 @@
 			<artifactId>model-businessrules-dynamic-package</artifactId>
 			<version>0.0.6-SNAPSHOT</version>
 		</dependency>
-		<!-- dependency>
+		<dependency>
 			<groupId>com.barcelo.businessrules</groupId>
 			<artifactId>pkg-dinamico</artifactId>
 			<version>1.0</version>
-		</dependency -->
+		</dependency>
 		<!-- dependency>
 		    <groupId>org.eclipse.persistence</groupId>
 		    <artifactId>eclipselink</artifactId>
@@ -122,6 +122,10 @@
 			<artifactId>kie-ci</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-workbench-models-guided-dtable</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -153,7 +157,7 @@
 	<build>
 	</build>
 
-	<repositories>
+	<!-- repositories>
 		<repository>
 			<id>guvnor</id>
 			<url>http://192.168.6.184:8080/kiewb-6.2/maven2/</url>
@@ -168,5 +172,5 @@
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 		</repository>
-	</repositories>
+	</repositories -->
 </project>
