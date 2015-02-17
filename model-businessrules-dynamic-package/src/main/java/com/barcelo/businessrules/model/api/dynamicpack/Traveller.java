@@ -10,8 +10,6 @@ import lombok.ToString;
  * @author dag-vsf
  */
 @Data
-@EqualsAndHashCode(exclude = {"dynamicPackage"})
-@ToString(exclude = {"dynamicPackage"})
 public class Traveller {
 	private DynamicPackage dynamicPackage;
 	private int age;

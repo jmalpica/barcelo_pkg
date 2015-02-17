@@ -113,4 +113,34 @@ public abstract class ComponentDistribution {
 			this.profitabilityRate = this.profitabilityRate.add(delta);
 		}
 	}
+
+	/**
+	 * False setter because Guvnor doesn't seem to want to call addCommissionRate directly.
+	 *
+	 * @param delta The value to add to the current commission rate
+	 * @see ComponentDistribution#addCommissionRate(java.math.BigDecimal)
+	 */
+	public void setAddCommissionRate(BigDecimal delta) {
+		addCommissionRate(delta);
+	}
+
+	/**
+	 * False setter because Guvnor doesn't seem to want to call addOverCommissionAmount directly.
+	 *
+	 * @param delta The value to add to the current over commission amount
+	 * @see ComponentDistribution#addOverCommissionAmount(java.math.BigDecimal)
+	 */
+	public void setAddOverCommissionAmount(BigDecimal delta) {
+		addOverCommissionAmount(delta);
+	}
+
+	/**
+	 * False setter because Guvnor doesn't seem to want to call addProfitabilityRate directly.
+	 *
+	 * @param delta The value to add to the current profitability rate
+	 * @see ComponentDistribution#addProfitabilityRate(java.math.BigDecimal)
+	 */
+	public void setAddProfitabilityRate(BigDecimal delta) {
+		addProfitabilityRate(delta);
+	}
 }
