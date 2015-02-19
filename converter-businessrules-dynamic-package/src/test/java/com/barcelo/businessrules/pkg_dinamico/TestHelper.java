@@ -3,17 +3,23 @@ package com.barcelo.businessrules.pkg_dinamico;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.drools.workbench.models.guided.dtable.backend.GuidedDTDRLPersistence;
-import org.drools.workbench.models.guided.dtable.backend.GuidedDTXMLPersistence;
-import org.drools.workbench.models.guided.dtable.shared.model.GuidedDecisionTable52;
-import org.kie.api.KieServices;
-import org.kie.api.builder.KieFileSystem;
-import org.kie.api.builder.model.KieModuleModel;
-import org.kie.api.io.Resource;
-import org.kie.api.io.ResourceType;
-import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
+import org.drools.KnowledgeBase;
+import org.drools.KnowledgeBaseFactory;
+import org.drools.builder.KnowledgeBuilder;
+import org.drools.builder.KnowledgeBuilderFactory;
+import org.drools.builder.ResourceType;
+import org.drools.event.DebugProcessEventListener;
+import org.drools.event.rule.DebugAgendaEventListener;
+import org.drools.event.rule.DebugWorkingMemoryEventListener;
+import org.drools.ide.common.client.modeldriven.dt52.GuidedDecisionTable52;
+import org.drools.ide.common.server.util.GuidedDTDRLPersistence;
+import org.drools.ide.common.server.util.GuidedDTXMLPersistence;
+import org.drools.io.Resource;
+import org.drools.io.ResourceFactory;
+import org.drools.runtime.StatefulKnowledgeSession;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,86 +28,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class TestHelper {
-	public static KieSession build(String... elements) {
-		printClasspath();
-		printContextClassLoaderClasspath();
-/*
-		try {
-			Thread.sleep(60000);
-		} catch (InterruptedException e) {
-			log.warn("While sleeping: ", e);
-		}
-*/
+	private final String packageName;
+	private final List<Class<?>> importList;
+	private final List<Object> factList;
+	private final List<String> agendaGroupList;
+	private final KnowledgeBuilder kbuilder;
+	private String header = null;
 
-		KieServices kieServices = KieServices.Factory.get();
-
-		KieModuleModel kieModuleModel = kieServices.newKieModuleModel();
-
-/*
-		KieBaseModel kieBaseModel1 = kieModuleModel.newKieBaseModel("KBase1 ")
-				.setDefault(true)
-				.setEqualsBehavior(EqualityBehaviorOption.EQUALITY)
-				.setEventProcessingMode(EventProcessingOption.STREAM);
-
-		KieSessionModel ksessionModel1 = kieBaseModel1.newKieSessionModel("KSession1")
-				.setDefault(true)
-				.setType(KieSessionModel.KieSessionType.STATEFUL)
-				.setClockType(ClockTypeOption.get("realtime"));
-*/
-
-		KieFileSystem kfs = kieServices.newKieFileSystem();
-		log.info(kieModuleModel.toXML());
-		kfs.writeKModuleXML(kieModuleModel.toXML());
-
-		for (String element : elements) {
-			log.info("Resource URL : {}", Thread.currentThread().getContextClassLoader().getResource(element));
-			log.info("Resource URL : {}", DtDeterminePaxAgeTypeTest.class.getResource(element));
-			InputStream inputStream = null;
-			if (element.startsWith("/")) {
-				inputStream = TestHelper.class.getResourceAsStream(element);
-			} else {
-				inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(element);
-			}
-			Reader reader = null;
-			StringBuilder sb = new StringBuilder();
-			try {
-				reader = new InputStreamReader(inputStream, "UTF-8");
-
-				char[] chars = new char[32768];
-				int length = 0;
-				while ((length = reader.read(chars)) > 0) {
-					sb.append(chars, 0, length);
-				}
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();  //This should not happen
-			} catch (IOException e) {
-				e.printStackTrace();  // TODO: Decide what to do here
-			}
-
-			String xml = sb.toString();
-			log.trace("gdst : {}", xml);
-
-			//convertimos el XML a un modelo de objetos
-			GuidedDecisionTable52 model = GuidedDTXMLPersistence.getInstance().unmarshal(xml);
-			//compilamos el modelo de objetos a lenguaje DRL
-			String drl = GuidedDTDRLPersistence.getInstance().marshal(model);
-			log.info("Generated DRL: {}", drl);
-
-			Resource drlResource = kieServices.getResources().newReaderResource(new StringReader(drl));
-			drlResource.setResourceType(ResourceType.DRL);
-
-			// Resource drlResource = kieServices.getResources().newReaderResource(new StringReader(xml));
-			String glue = element.startsWith("/") ? "" : "/";
-			String path = "/src/main/resources" + glue + element.replace(".gdst", ".drl");
-			log.info("DestinationPath: {}", path);
-			drlResource.setTargetPath(path);
-			kfs.write(drlResource);
-		}
-
-		kieServices.newKieBuilder(kfs).buildAll();
-
-		KieContainer kieContainer = kieServices.newKieContainer(kieServices.getRepository().getDefaultReleaseId());
-		return kieContainer.newKieSession();
+	public TestHelper(String packageName) {
+		this.packageName = packageName;
+		this.importList = new ArrayList<Class<?>>();
+		this.factList = new ArrayList<Object>();
+		this.agendaGroupList = new ArrayList<String>();
+		kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 	}
 
 	private static void printClasspath() {
@@ -130,5 +69,115 @@ public class TestHelper {
 			log.info(url.getFile());
 		}
 		log.info(" ====== Printing CCL classpath END =========== ");
+	}
+
+	public void addImport(Class<?> clazz) {
+		if (this.header != null) {
+			log.error("Todos los imports han de añadirse antes de importar la primera tabla.");
+			throw new IllegalStateException("Import after rule");
+		}
+		this.importList.add(clazz);
+	}
+
+	public void addGDST(String element) {
+		if (header == null) {
+			assembleHeader();
+		}
+		if (log.isTraceEnabled()) {
+			log.trace("Resource URL : {}", Thread.currentThread().getContextClassLoader().getResource(element));
+			log.trace("Resource URL : {}", DtDeterminePaxAgeTypeTest.class.getResource(element));
+		}
+		InputStream inputStream = null;
+		if (element.startsWith("/")) {
+			inputStream = TestHelper.class.getResourceAsStream(element);
+		} else {
+			inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(element);
+		}
+		Reader reader = null;
+		StringBuilder sb = new StringBuilder();
+		try {
+			reader = new InputStreamReader(inputStream, "UTF-8");
+
+			char[] chars = new char[32768];
+			int length = 0;
+			while ((length = reader.read(chars)) > 0) {
+				sb.append(chars, 0, length);
+			}
+		} catch (UnsupportedEncodingException e) {
+			log.error("Failure reading the GDST: ", e);
+			throw new RuntimeException("Invalid encoding", e);
+		} catch (IOException e) {
+			log.error("Failure reading the GDST: ", e);
+			throw new RuntimeException("Read failure", e);
+		}
+
+		String xml = sb.toString();
+		log.trace("gdst : {}", xml);
+
+		//convertimos el XML a un modelo de objetos
+		GuidedDecisionTable52 model = GuidedDTXMLPersistence.getInstance().unmarshal(xml);
+		//compilamos el modelo de objetos a lenguaje DRL
+		String drl = this.header + GuidedDTDRLPersistence.getInstance().marshal(model);
+		log.debug("Generated DRL: {}", drl);
+
+		Resource drlResource = ResourceFactory.newReaderResource(new StringReader(drl));
+		kbuilder.add(drlResource, ResourceType.DRL);
+	}
+
+	private void assembleHeader() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("package ").append(this.packageName).append('\n');
+		sb.append('\n');
+		for (Class<?> importClass : this.importList) {
+			sb.append("import ").append(importClass.getName()).append('\n');
+		}
+		sb.append('\n');
+		this.header = sb.toString();
+	}
+
+	public void addAgendaGroup(String agendaGroup) {
+		this.agendaGroupList.add(agendaGroup);
+	}
+
+	public void addFact(Object fact) {
+		this.factList.add(fact);
+	}
+
+	public void run() {
+		if (kbuilder.hasErrors()) {
+			log.error("Building errors: {}", kbuilder.getErrors());
+			throw new IllegalStateException("Errors in Builder, can't create session");
+		}
+
+		log.info("Creando la sesion.");
+		KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+		kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
+		StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
+
+		if (log.isDebugEnabled()) {
+			session.addEventListener(new DebugAgendaEventListener());
+			// session.addEventListener(new DebugProcessEventListener());
+			session.addEventListener(new DebugWorkingMemoryEventListener());
+		}
+
+		session.getAgenda().clear();
+
+		log.info("Insertando hechos.");
+		for (Object fact : this.factList) {
+			session.insert(fact);
+		}
+		log.info("Cargados {} hechos.", session.getFactCount());
+
+		log.info("Configurando agendaGroups.");
+		for (int ii = agendaGroupList.size() - 1; ii >= 0; ii--) {
+			String agendaGroup = agendaGroupList.get(ii);
+			session.getAgenda().getAgendaGroup(agendaGroup).setFocus();
+		}
+
+		log.info("Llamando a fireAllRules.");
+		session.fireAllRules();
+
+		log.info("Eliminando la sesion.");
+		session.dispose();
 	}
 }

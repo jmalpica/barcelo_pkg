@@ -31,13 +31,6 @@
 				<version>1.1.1</version>
 				<scope>provided</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.drools</groupId>
-				<artifactId>drools-bom</artifactId>
-				<type>pom</type>
-				<version>6.1.0.Final</version>
-				<scope>import</scope>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -77,11 +70,6 @@
 			<artifactId>model-businessrules-dynamic-package</artifactId>
 			<version>0.0.6-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.barcelo.businessrules</groupId>
-			<artifactId>pkg-dinamico</artifactId>
-			<version>1.0</version>
-		</dependency>
 		<!-- dependency>
 		    <groupId>org.eclipse.persistence</groupId>
 		    <artifactId>eclipselink</artifactId>
@@ -109,22 +97,49 @@
 			<artifactId>spring-context</artifactId>
 			<version>3.2.2.RELEASE</version>
 		</dependency>
+
+		<!-- Internal Drools dependencies -->
 		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-api</artifactId>
+			<groupId>org.drools</groupId>
+			<artifactId>knowledge-api</artifactId>
+			<version>5.6.0.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+			<version>5.6.0.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-compiler</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-ci</artifactId>
+			<version>5.6.0.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
-			<artifactId>drools-workbench-models-guided-dtable</artifactId>
+			<artifactId>drools-decisiontables</artifactId>
+			<version>5.6.0.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-templates</artifactId>
+			<version>5.6.0.Final</version>
+		</dependency>
+
+		<!-- ¿Needed for Drools logging? -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+
+		<!-- Needed for GDST compilation -->
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>droolsjbpm-ide-common</artifactId>
+			<version>5.6.0.Final</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -155,22 +170,59 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 
-	<!-- repositories>
-		<repository>
-			<id>guvnor</id>
-			<url>http://192.168.6.184:8080/kiewb-6.2/maven2/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-	</repositories -->
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/profiles/dev</directory>
+						<filtering>false</filtering>
+					</resource>
+				</resources>
+				<filters>
+					<filter>src/main/profiles/dev.properties</filter>
+				</filters>
+			</build>
+		</profile>
+		<profile>
+			<id>int</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/profiles/int</directory>
+						<filtering>false</filtering>
+					</resource>
+				</resources>
+				<filters>
+					<filter>src/main/profiles/int.properties</filter>
+				</filters>
+			</build>
+		</profile>
+		<profile>
+			<id>pro</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/profiles/pro</directory>
+						<filtering>false</filtering>
+					</resource>
+				</resources>
+				<filters>
+					<filter>src/main/profiles/pro.properties</filter>
+				</filters>
+			</build>
+		</profile>
+	</profiles>
 </project>

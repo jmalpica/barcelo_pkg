@@ -3,8 +3,7 @@ package com.barcelo.businessrules.dynamicpack.decision.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.StatelessKieSession;
+import org.drools.runtime.StatefulKnowledgeSession;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,12 +40,14 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 
 	public void calculatePrices(TOProductAvailabilityRQ toProductAvailabilityRQ,
 								TOProductAvailabilityRS toProductAvailabilityRS) {
+		long start = System.currentTimeMillis();
+
 		log.info("Convirtiendo al modelo de hechos");
 		DynamicPackage dynamicPackage = toFactModel(toProductAvailabilityRQ, toProductAvailabilityRS);
 		log.info("Convirtiendo a lista de hechos");
 		List<Object> factList = addFacts(dynamicPackage);
 		log.info("Creando la sesion");
-		KieSession kieSession = decisionManager.createKieSession();
+		StatefulKnowledgeSession kieSession = decisionManager.createKieSession();
 		log.info("Insertando hechos");
 		for (Object fact : factList) {
 			kieSession.insert(fact);
@@ -65,6 +66,8 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 		*/
 		log.info("Convirtiendo al modelo JAXB.");
 		toApplicationModel(dynamicPackage, toProductAvailabilityRS);
+
+		log.info("calculatePrices run in : {} ms.", (System.currentTimeMillis() - start));
 	}
 
 	public void calculatePreBookingPrices(TOProductAvailabilityRQ toProductAvailabilityRQ,
@@ -74,7 +77,7 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 		log.info("Convirtiendo a lista de hechos");
 		List<Object> factList = addFacts(dynamicPackage);
 		log.info("Creando la sesion");
-		KieSession kieSession = decisionManager.createKieSession();
+		StatefulKnowledgeSession kieSession = decisionManager.createKieSession();
 		log.info("Insertando hechos");
 		for (Object fact : factList) {
 			kieSession.insert(fact);
