@@ -16,7 +16,6 @@ import org.drools.io.ResourceChangeScanner;
 import org.drools.io.ResourceChangeScannerConfiguration;
 import org.drools.io.ResourceFactory;
 import org.drools.io.impl.ClassPathResource;
-import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.springframework.stereotype.Component;
@@ -31,8 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DecisionManager {
 	public static final String SERVICENAME = "decisionManager";
 	private int pollingInterval = 60;
-	private KnowledgeAgent kagent;
-	// private KnowledgeBase kbase;
+	private KnowledgeAgent knowledgeAgent;
+	private KnowledgeBase knowledgeBase;
 	private ResourceChangeScanner scannerService;
 
 	public long getPollingInterval() {
@@ -48,20 +47,28 @@ public class DecisionManager {
 		}
 	}
 
+	public KnowledgeBase getKnowledgeBase() {
+		return knowledgeBase;
+	}
+
+	public void setKnowledgeBase(KnowledgeBase knowledgeBase) {
+		this.knowledgeBase = knowledgeBase;
+	}
+
 	@PostConstruct
 	public void postConstruct() {
 		long start = System.currentTimeMillis();
 
 		KnowledgeAgentConfiguration agentConfiguration = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
-		kagent = KnowledgeAgentFactory.newKnowledgeAgent("KnowledgeAgent", agentConfiguration);
-		kagent.addEventListener(new PkgKnowledgeAgentEventListener());
-		kagent.monitorResourceChangeEvents(true);
+		knowledgeAgent = KnowledgeAgentFactory.newKnowledgeAgent("KnowledgeAgent", agentConfiguration);
+		knowledgeAgent.addEventListener(new PkgKnowledgeAgentEventListener(this));
+		knowledgeAgent.monitorResourceChangeEvents(true);
 
 		ClassPathResource resource = (ClassPathResource) ResourceFactory
 				.newClassPathResource("KnowledgeAgentChangeSet.xml");
 		resource.setResourceType(ResourceType.CHANGE_SET);
-		kagent.applyChangeSet(resource);
-		// kbase = kagent.getKnowledgeBase();
+		knowledgeAgent.applyChangeSet(resource);
+		// knowledgeBase = knowledgeAgent.getKnowledgeBase();
 
 		scannerService = ResourceFactory.getResourceChangeScannerService();
 		Properties resourceChangeScannerProperties = new Properties();
@@ -86,18 +93,29 @@ public class DecisionManager {
 	}
 
 	public StatefulKnowledgeSession createKieSession() {
-		if (this.kagent == null) {
+		if (this.knowledgeAgent == null) {
 			log.warn("Drools is unitialized. If you are not using Spring, call postConstruct() manually");
 			postConstruct();
 		}
+		if (this.knowledgeBase == null) {
+			log.error("Failure initializing DecisionManager. Is the package in Guvnor available?");
+			throw new IllegalStateException("KnowledgeBase not ready");
+		}
 
-		KnowledgeBase kieBase = kagent.getKnowledgeBase();
-		// StatelessKieSession statelessKieSession = kieBase.newStatelessKieSession();
-		StatefulKnowledgeSession kieSession = kieBase.newStatefulKnowledgeSession();
-		KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory.newFileLogger(kieSession, "kie_session");
-		// statelessKieSession.getAgenda().getAgendaGroup( "Group A" ).setFocus();
+		StatefulKnowledgeSession kieSession = knowledgeBase.newStatefulKnowledgeSession();
+		if (log.isDebugEnabled()) {
+			kieSession.addEventListener(new PkgAgendaEventListener());
+		}
+		if (log.isTraceEnabled()) {
+			kieSession.addEventListener(new PkgWorkingMemoryEventListener());
+			/* KnowledgeRuntimeLogger logger = */
+			KnowledgeRuntimeLoggerFactory.newFileLogger(kieSession, "kie_session");
+		}
+
+		/*
 		kieSession.getAgenda().getAgendaGroup("commission_and_markup").setFocus();
 		kieSession.getAgenda().getAgendaGroup("setup").setFocus();
+		*/
 		return kieSession;
 	}
 }

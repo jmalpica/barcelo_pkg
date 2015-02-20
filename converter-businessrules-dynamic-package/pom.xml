@@ -126,11 +126,11 @@
 		</dependency>
 
 		<!-- ¿Needed for Drools logging? -->
-		<dependency>
+		<!-- dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
 			<version>1.4.7</version>
-		</dependency>
+		</dependency -->
 
 		<!-- Needed for GDST compilation -->
 		<dependency>

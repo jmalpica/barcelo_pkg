@@ -11,7 +11,6 @@ import org.drools.KnowledgeBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
-import org.drools.event.DebugProcessEventListener;
 import org.drools.event.rule.DebugAgendaEventListener;
 import org.drools.event.rule.DebugWorkingMemoryEventListener;
 import org.drools.ide.common.client.modeldriven.dt52.GuidedDecisionTable52;
@@ -33,7 +32,7 @@ public class TestHelper {
 	private final List<Object> factList;
 	private final List<String> agendaGroupList;
 	private final KnowledgeBuilder kbuilder;
-	private String header = null;
+	private String header;
 
 	public TestHelper(String packageName) {
 		this.packageName = packageName;
@@ -44,7 +43,7 @@ public class TestHelper {
 	}
 
 	private static void printClasspath() {
-		log.info(" ====== Printing classpath START =========== ");
+		log.trace(" ====== Printing classpath START =========== ");
 		//Get the System Classloader
 		ClassLoader sysClassLoader = TestHelper.class.getClassLoader();
 
@@ -52,13 +51,13 @@ public class TestHelper {
 		URL[] urls = ((URLClassLoader) sysClassLoader).getURLs();
 
 		for (URL url : urls) {
-			log.info(url.getFile());
+			log.trace(url.getFile());
 		}
-		log.info(" ====== Printing classpath END =========== ");
+		log.trace(" ====== Printing classpath END =========== ");
 	}
 
 	private static void printContextClassLoaderClasspath() {
-		log.info(" ====== Printing CCL classpath START =========== ");
+		log.trace(" ====== Printing CCL classpath START =========== ");
 		//Get the Thread Context Classloader
 		ClassLoader sysClassLoader = Thread.currentThread().getContextClassLoader();
 
@@ -66,9 +65,9 @@ public class TestHelper {
 		URL[] urls = ((URLClassLoader) sysClassLoader).getURLs();
 
 		for (URL url : urls) {
-			log.info(url.getFile());
+			log.trace(url.getFile());
 		}
-		log.info(" ====== Printing CCL classpath END =========== ");
+		log.trace(" ====== Printing CCL classpath END =========== ");
 	}
 
 	public void addImport(Class<?> clazz) {
@@ -82,6 +81,10 @@ public class TestHelper {
 	public void addGDST(String element) {
 		if (header == null) {
 			assembleHeader();
+			if (log.isTraceEnabled()) {
+				printClasspath();
+				printContextClassLoaderClasspath();
+			}
 		}
 		if (log.isTraceEnabled()) {
 			log.trace("Resource URL : {}", Thread.currentThread().getContextClassLoader().getResource(element));
@@ -94,24 +97,27 @@ public class TestHelper {
 			inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(element);
 		}
 		Reader reader = null;
-		StringBuilder sb = new StringBuilder();
+		// This doesn't use the standard name sb because of a PMD rule
+		StringBuilder stringBuilder = new StringBuilder();
 		try {
 			reader = new InputStreamReader(inputStream, "UTF-8");
 
 			char[] chars = new char[32768];
-			int length = 0;
-			while ((length = reader.read(chars)) > 0) {
-				sb.append(chars, 0, length);
+			// This "spurious" duplication of the call to reader.read is because of a PMD rule
+			int length = reader.read(chars);
+			while (length > 0) {
+				stringBuilder.append(chars, 0, length);
+				length = reader.read(chars);
 			}
 		} catch (UnsupportedEncodingException e) {
 			log.error("Failure reading the GDST: ", e);
-			throw new RuntimeException("Invalid encoding", e);
+			throw new IllegalStateException("Invalid encoding", e);
 		} catch (IOException e) {
 			log.error("Failure reading the GDST: ", e);
-			throw new RuntimeException("Read failure", e);
+			throw new IllegalStateException("Read failure", e);
 		}
 
-		String xml = sb.toString();
+		String xml = stringBuilder.toString();
 		log.trace("gdst : {}", xml);
 
 		//convertimos el XML a un modelo de objetos
@@ -125,14 +131,14 @@ public class TestHelper {
 	}
 
 	private void assembleHeader() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("package ").append(this.packageName).append('\n');
-		sb.append('\n');
+		// This doesn't use the standard name sb because of a PMD rule
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("package ").append(this.packageName).append("\n\n");
 		for (Class<?> importClass : this.importList) {
-			sb.append("import ").append(importClass.getName()).append('\n');
+			stringBuilder.append("import ").append(importClass.getName()).append('\n');
 		}
-		sb.append('\n');
-		this.header = sb.toString();
+		stringBuilder.append('\n');
+		this.header = stringBuilder.toString();
 	}
 
 	public void addAgendaGroup(String agendaGroup) {
@@ -156,7 +162,6 @@ public class TestHelper {
 
 		if (log.isDebugEnabled()) {
 			session.addEventListener(new DebugAgendaEventListener());
-			// session.addEventListener(new DebugProcessEventListener());
 			session.addEventListener(new DebugWorkingMemoryEventListener());
 		}
 

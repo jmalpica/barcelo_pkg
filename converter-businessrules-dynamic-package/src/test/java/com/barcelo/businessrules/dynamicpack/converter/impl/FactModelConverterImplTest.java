@@ -3,6 +3,7 @@ package com.barcelo.businessrules.dynamicpack.converter.impl;
 import java.io.File;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.joda.time.DateTime;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 @Slf4j
 public class FactModelConverterImplTest {
 	@org.junit.Test
-	public void testToModelInterface1() throws Exception {
+	public void testToModelInterface1() throws JAXBException {
 		long start = System.currentTimeMillis();
 		JAXBContext jaxbContextRQ = JAXBContext.newInstance(/* "com.barcelo.integration.engine.model.api" */ TOProductAvailabilityRQ.class);
 		log.info("Inicializando contexto en : " + (System.currentTimeMillis() - start));
@@ -64,7 +65,7 @@ public class FactModelConverterImplTest {
 	 * @throws Exception
 	 */
 	@org.junit.Test
-	public void testExampleDayDifference() throws Exception {
+	public void testExampleDayDifference() {
 		// 5am on the 20th to 1pm on the 21st, October 2013, Brazil
 		DateTimeZone BRAZIL = DateTimeZone.forID("America/Sao_Paulo");
 		DateTime start = new DateTime(2013, 10, 20, 5, 0, 0, BRAZIL);

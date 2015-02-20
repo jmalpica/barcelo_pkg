@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DtDetermineHotelMarkupTest {
 	@Test
-	public void test01() throws Exception {
+	public void test01() {
 		// Creando la clase de prueba
 		TestHelper testHelper = new TestHelper("PkgDinamicoBV");
 

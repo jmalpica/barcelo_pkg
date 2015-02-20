@@ -9,6 +9,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class PkgKnowledgeAgentEventListener implements KnowledgeAgentEventListener {
+	private final DecisionManager decisionManager;
+
+	public PkgKnowledgeAgentEventListener(DecisionManager decisionManager) {
+		this.decisionManager = decisionManager;
+	}
+
 	public void beforeChangeSetApplied(BeforeChangeSetAppliedEvent event) {
 		log.info("PkgKnowledgeAgentEventListener : beforeChangeSetApplied called : {}", event);
 	}
@@ -34,6 +40,7 @@ public class PkgKnowledgeAgentEventListener implements KnowledgeAgentEventListen
 	}
 
 	public void knowledgeBaseUpdated(KnowledgeBaseUpdatedEvent event) {
+		decisionManager.setKnowledgeBase(event.getKnowledgeBase());
 		log.info("PkgKnowledgeAgentEventListener : knowledgeBaseUpdated called : {}", event);
 	}
 

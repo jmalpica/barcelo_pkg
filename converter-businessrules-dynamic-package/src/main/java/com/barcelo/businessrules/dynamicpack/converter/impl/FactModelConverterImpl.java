@@ -35,6 +35,14 @@ import lombok.extern.slf4j.Slf4j;
 @Scope("prototype")
 @Slf4j
 public class FactModelConverterImpl implements FactModelConverterInterface {
+	/**
+	 * Constant to make PMD happy. Notice that zero here is not a magic number,
+	 * unless the frontier between positive and negative numbers can be configured in the universe somehow.
+	 *
+	 * Notice also, how replacing the 0 by a semantically meaningful constant here, the code becomes less
+	 * legible instead of more.
+	 */
+	public static final int SMALLEST_POSITIVE = 0;
 	private DynamicPackage dynamicPackage;
 	private DateTime bookingDate;
 
@@ -221,7 +229,9 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 						if (segmentList != null) {
 							// Acumulación de escalas
 							int escalas = segmentList.size();
-							if (escalas > 0) escalas--; // Las escalas son 1 menos que los segmentos
+							if (escalas > SMALLEST_POSITIVE) {
+								escalas--; // Las escalas son 1 menos que los segmentos
+							}
 							escalas += transportDistribution.getSegmentCount();
 							transportDistribution.setSegmentCount(escalas);
 

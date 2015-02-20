@@ -67,7 +67,7 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 		log.info("Convirtiendo al modelo JAXB.");
 		toApplicationModel(dynamicPackage, toProductAvailabilityRS);
 
-		log.info("calculatePrices run in : {} ms.", (System.currentTimeMillis() - start));
+		log.info("calculatePrices run in : {} ms.", System.currentTimeMillis() - start);
 	}
 
 	public void calculatePreBookingPrices(TOProductAvailabilityRQ toProductAvailabilityRQ,

@@ -8,7 +8,7 @@ import javax.xml.bind.Unmarshaller;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+//import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class DecisionServiceImplTest {
 		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
-		File file2 = new File("src/test/resources/ej_PD_JOL_F_Mallorca_optimizada.xml");
+		File file2 = new File("src/test/resources/response_prueba_simple.xml");
 		this.toProductAvailabilityRS = (TOProductAvailabilityRS) jaxbUnmarshaller.unmarshal(file2);
 		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
 
@@ -74,7 +74,7 @@ public class DecisionServiceImplTest {
 	}
 
 	@Test
-	public void testCalculatePrices() throws Exception {
+	public void testCalculatePrices() {
 		Assert.assertNotNull(this.decisionServiceInterface);
 		Assert.assertNotNull(this.toProductAvailabilityRQ);
 		Assert.assertNotNull(this.toProductAvailabilityRS);
