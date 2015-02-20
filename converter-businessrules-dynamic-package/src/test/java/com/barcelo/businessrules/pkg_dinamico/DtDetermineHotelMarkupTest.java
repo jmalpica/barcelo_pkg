@@ -1,17 +1,10 @@
 package com.barcelo.businessrules.pkg_dinamico;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.drools.runtime.StatefulKnowledgeSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.barcelo.businessrules.dynamicpack.decision.impl.DecisionManager;
 import com.barcelo.businessrules.model.api.dynamicpack.ComponentDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
 import com.barcelo.businessrules.model.api.dynamicpack.HotelDistribution;
