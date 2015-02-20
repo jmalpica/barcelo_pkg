@@ -7,7 +7,7 @@ iataOrigin="MAD"
 maxWaitTime="100000"
 categoryCode="a83d970b-c783-49aa"
 numberOfNights="7"
-fromDate="2015-01-24T00:00:00.000+02:00"
+fromDate="2015-12-24T00:00:00.000+02:00"
 destinationType="COMMERCIAL_DESTINATION"
 destinationCode="COMERCIAL40">
    <POS>
