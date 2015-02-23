@@ -1,5 +1,8 @@
 package com.barcelo.businessrules.dynamicpack.decision.impl;
 
+import org.drools.KnowledgeBase;
+import org.drools.definition.KnowledgePackage;
+import org.drools.definition.rule.Rule;
 import org.drools.event.knowledgeagent.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +43,15 @@ public class PkgKnowledgeAgentEventListener implements KnowledgeAgentEventListen
 	}
 
 	public void knowledgeBaseUpdated(KnowledgeBaseUpdatedEvent event) {
-		decisionManager.setKnowledgeBase(event.getKnowledgeBase());
+		KnowledgeBase knowledgeBase = event.getKnowledgeBase();
+		decisionManager.setKnowledgeBase(knowledgeBase);
 		log.info("PkgKnowledgeAgentEventListener : knowledgeBaseUpdated called : {}", event);
+		for (KnowledgePackage knowledgePackage : knowledgeBase.getKnowledgePackages()) {
+			log.info("Paquete {}: ", knowledgePackage.getName());
+			for (Rule rule : knowledgePackage.getRules()) {
+				log.info("  -> Regla {}.", rule.getName());
+			}
+		}
 	}
 
 	public void resourceCompilationFailed(ResourceCompilationFailedEvent event) {
