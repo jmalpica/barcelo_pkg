@@ -1,5 +1,6 @@
 package com.barcelo.businessrules.model.api.dynamicpack;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import lombok.Data;
@@ -21,4 +22,31 @@ public class TransportDistribution extends ComponentDistribution {
 	private String cabin;
 	private int segmentCount;
 	private int stayQuantity;
+
+	/* It seems Guvnor has some problems with inheritance in methods. The following ones are to help it find them. */
+
+	@Override
+	public void addCommissionRate(BigDecimal delta) {
+		super.addCommissionRate(delta);
+	}
+
+	@Override
+	public void addOverCommissionAmount(BigDecimal delta) {
+		super.addOverCommissionAmount(delta);
+	}
+
+	@Override
+	public void addProfitabilityRate(BigDecimal delta) {
+		super.addProfitabilityRate(delta);
+	}
+
+	@Override
+	public void calculatePrices() {
+		super.calculatePrices();
+	}
+
+	@Override
+	public void calculatePreBookingPrices() {
+		super.calculatePreBookingPrices();
+	}
 }
