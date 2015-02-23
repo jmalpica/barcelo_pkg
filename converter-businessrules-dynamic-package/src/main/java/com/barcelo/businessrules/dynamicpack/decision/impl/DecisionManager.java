@@ -59,17 +59,6 @@ public class DecisionManager {
 	public void postConstruct() {
 		long start = System.currentTimeMillis();
 
-		KnowledgeAgentConfiguration agentConfiguration = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
-		knowledgeAgent = KnowledgeAgentFactory.newKnowledgeAgent("KnowledgeAgent", agentConfiguration);
-		knowledgeAgent.addEventListener(new PkgKnowledgeAgentEventListener(this));
-		knowledgeAgent.monitorResourceChangeEvents(true);
-
-		ClassPathResource resource = (ClassPathResource) ResourceFactory
-				.newClassPathResource("KnowledgeAgentChangeSet.xml");
-		resource.setResourceType(ResourceType.CHANGE_SET);
-		knowledgeAgent.applyChangeSet(resource);
-		// knowledgeBase = knowledgeAgent.getKnowledgeBase();
-
 		scannerService = ResourceFactory.getResourceChangeScannerService();
 		Properties resourceChangeScannerProperties = new Properties();
 		try {
@@ -88,6 +77,18 @@ public class DecisionManager {
 
 		ResourceChangeNotifier resourceChangeNotifierService = ResourceFactory.getResourceChangeNotifierService();
 		resourceChangeNotifierService.start();
+
+		KnowledgeAgentConfiguration agentConfiguration = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
+		knowledgeAgent = KnowledgeAgentFactory.newKnowledgeAgent("KnowledgeAgent", agentConfiguration);
+
+		ClassPathResource resource = (ClassPathResource) ResourceFactory
+				.newClassPathResource("KnowledgeAgentChangeSet.xml");
+		resource.setResourceType(ResourceType.CHANGE_SET);
+		knowledgeAgent.applyChangeSet(resource);
+		knowledgeBase = knowledgeAgent.getKnowledgeBase();
+
+		knowledgeAgent.monitorResourceChangeEvents(true);
+		knowledgeAgent.addEventListener(new PkgKnowledgeAgentEventListener(this));
 
 		log.info("Inicializando Drools en : " + (System.currentTimeMillis() - start));
 	}
