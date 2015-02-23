@@ -104,19 +104,13 @@ public class DecisionManager {
 		}
 
 		StatefulKnowledgeSession kieSession = knowledgeBase.newStatefulKnowledgeSession();
-		if (log.isDebugEnabled()) {
-			kieSession.addEventListener(new PkgAgendaEventListener());
-		}
+		kieSession.addEventListener(new PkgAgendaEventListener(true, false));
 		if (log.isTraceEnabled()) {
 			kieSession.addEventListener(new PkgWorkingMemoryEventListener());
 			/* KnowledgeRuntimeLogger logger = */
 			KnowledgeRuntimeLoggerFactory.newFileLogger(kieSession, "kie_session");
 		}
 
-		/*
-		kieSession.getAgenda().getAgendaGroup("commission_and_markup").setFocus();
-		kieSession.getAgenda().getAgendaGroup("setup").setFocus();
-		*/
 		return kieSession;
 	}
 }

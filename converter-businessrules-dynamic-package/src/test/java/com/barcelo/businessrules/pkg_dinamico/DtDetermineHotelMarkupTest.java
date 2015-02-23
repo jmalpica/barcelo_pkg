@@ -70,5 +70,7 @@ public class DtDetermineHotelMarkupTest {
 		Assert.assertNotNull(traveller.getAgeType());
 		Assert.assertEquals("ADULT", traveller.getAgeType());
 		Assert.assertNotNull(hotelDistribution.getProfitabilityRate());
+		Assert.assertEquals(1, testHelper.getActivations("Row 3 DT_DETERMINE_PAX_AGE_TYPE"));
+		Assert.assertEquals(1, testHelper.getActivations("Row 1 DT_DETERMINE_HOTEL_MARKUP"));
 	}
 }

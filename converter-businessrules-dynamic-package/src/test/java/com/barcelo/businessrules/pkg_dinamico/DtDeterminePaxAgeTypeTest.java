@@ -45,5 +45,6 @@ public class DtDeterminePaxAgeTypeTest {
 		// Verificando resultados
 		Assert.assertNotNull(traveller1.getAgeType());
 		Assert.assertEquals("BABY", traveller1.getAgeType());
+		Assert.assertEquals(1, testHelper.getActivations("Row 1 DT_DETERMINE_PAX_AGE_TYPE"));
 	}
 }

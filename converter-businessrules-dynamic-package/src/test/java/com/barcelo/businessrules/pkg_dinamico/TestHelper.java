@@ -20,6 +20,8 @@ import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 
+import com.barcelo.businessrules.dynamicpack.decision.impl.PkgAgendaEventListener;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,6 +35,7 @@ public class TestHelper {
 	private final List<String> agendaGroupList;
 	private final KnowledgeBuilder kbuilder;
 	private String header;
+	private PkgAgendaEventListener agendaEventListener;
 
 	public TestHelper(String packageName) {
 		this.packageName = packageName;
@@ -160,8 +163,9 @@ public class TestHelper {
 		kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
 		StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
 
+		agendaEventListener = new PkgAgendaEventListener(false, true);
+		session.addEventListener(agendaEventListener);
 		if (log.isDebugEnabled()) {
-			session.addEventListener(new DebugAgendaEventListener());
 			session.addEventListener(new DebugWorkingMemoryEventListener());
 		}
 
@@ -184,5 +188,9 @@ public class TestHelper {
 
 		log.info("Eliminando la sesion.");
 		session.dispose();
+	}
+
+	public int getActivations(String ruleName) {
+		return agendaEventListener.getActivations(ruleName);
 	}
 }
