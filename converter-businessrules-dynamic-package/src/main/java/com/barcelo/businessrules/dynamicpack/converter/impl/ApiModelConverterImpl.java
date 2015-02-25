@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.barcelo.businessrules.dynamicpack.converter.ApiModelConverterInterface;
 import com.barcelo.businessrules.model.api.dynamicpack.ComponentDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
-import com.barcelo.integration.engine.model.api.response.pack.TOProductAvailabilityRS;
+import com.barcelo.integration.engine.model.api.response.BarMasterRS;
 import com.barcelo.integration.engine.model.api.shared.Price;
 import com.barcelo.integration.engine.model.api.shared.pack.TOPriceInformation;
 
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Scope("prototype")
 @Slf4j
 public class ApiModelConverterImpl implements ApiModelConverterInterface {
-	public void toApplicationModel(DynamicPackage dynamicPackage, TOProductAvailabilityRS toProductAvailabilityRS) {
+	public void toApplicationModel(DynamicPackage dynamicPackage, BarMasterRS toProductAvailabilityRS) {
 		/* Note that the whole toProductAvailabilityRS is unnecessary for us, as we already keep relevant links to
 		 * the price structures inside. We ask it only to remember the user that our data model doesn't contain all
 		 * the required data so it is the responsibility of the caller to keep the uncorrupted toProductAvailabilityRS

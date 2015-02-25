@@ -21,6 +21,7 @@
 								<NonCommissionableAmount isoCurrency="EUR" originalISOCurrency="EUR" price="-20.35" originalPrice="-20.35" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="0.00" originalPrice="0.00" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="0.00" originalPrice="0.00" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="5.69" originalPrice="5.69" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="5.69" originalPrice="5.69" exchange="1"/>
@@ -71,6 +72,7 @@
 								<NonCommissionableAmount price="0" originalPrice="0" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="86.95" originalPrice="86.95" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="8.69" originalPrice="8.69" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="573.15" originalPrice="573.15" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="668.79" originalPrice="668.79" exchange="1"/>
@@ -92,6 +94,7 @@
 								<NonCommissionableAmount price="0" originalPrice="0" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="106.48" originalPrice="106.48" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="10.65" originalPrice="10.65" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="701.91" originalPrice="701.91" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="819.04" originalPrice="819.04" exchange="1"/>
@@ -113,6 +116,7 @@
 								<NonCommissionableAmount price="0" originalPrice="0" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="236.55" originalPrice="236.55" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="23.65" originalPrice="23.65" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="1559.34" originalPrice="1559.34" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="1819.54" originalPrice="1819.54" exchange="1"/>
@@ -136,6 +140,7 @@
 								<NonCommissionableAmount price="0" originalPrice="0" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="59.10" originalPrice="59.10" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="5.91" originalPrice="5.91" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="389.53" originalPrice="389.53" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="454.54" originalPrice="454.54" exchange="1"/>
@@ -157,6 +162,7 @@
 								<NonCommissionableAmount price="0" originalPrice="0" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="78.60" originalPrice="78.60" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="7.86" originalPrice="7.86" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="518.08" originalPrice="518.08" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="604.54" originalPrice="604.54" exchange="1"/>
@@ -178,6 +184,7 @@
 								<NonCommissionableAmount price="0" originalPrice="0" exchange="1"/>
 								<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="208.66" originalPrice="208.66" exchange="1"/>
 								<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="20.86" originalPrice="20.86" exchange="1"/>
+								<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 								<PricingInformation>
 									<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="1375.52" originalPrice="1375.52" exchange="1"/>
 									<SuggestedRetail isoCurrency="EUR" originalISOCurrency="EUR" price="1605.04" originalPrice="1605.04" exchange="1"/>
@@ -193,6 +200,7 @@
 				<NonCommissionableAmount price="80.59" originalPrice="80.59" exchange="1"/>
 				<CommissionAmount isoCurrency="EUR" originalISOCurrency="EUR" price="48.05" originalPrice="48.05" exchange="1"/>
 				<CommissionTaxesAmount isoCurrency="EUR" originalISOCurrency="EUR" price="4.81" originalPrice="4.81" exchange="1"/>
+				<CommissionTaxPercentage>0.21</CommissionTaxPercentage>
 				<PricingInformation>
 					<Cost isoCurrency="EUR" originalISOCurrency="EUR" price="301.04" originalPrice="301.04" exchange="1"/>
 					<WholesalerNet isoCurrency="EUR" originalISOCurrency="EUR" price="302.45" originalPrice="302.45" exchange="1"/>

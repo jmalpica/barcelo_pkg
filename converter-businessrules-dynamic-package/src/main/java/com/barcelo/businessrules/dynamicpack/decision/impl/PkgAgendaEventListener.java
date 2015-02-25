@@ -63,7 +63,7 @@ public class PkgAgendaEventListener implements AgendaEventListener {
 	}
 
 	public void beforeActivationFired(BeforeActivationFiredEvent event) {
-		//To change body of implemented methods use File | Settings | File Templates.
+		log.debug("Before Rule {} fired.", event.getActivation().getRule().getName());
 	}
 
 	public void afterActivationFired(AfterActivationFiredEvent event) {
@@ -89,18 +89,18 @@ public class PkgAgendaEventListener implements AgendaEventListener {
 	}
 
 	public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-		//To change body of implemented methods use File | Settings | File Templates.
+		log.info("Before RuleFlowGroup {} activated.", event.getRuleFlowGroup().getName());
 	}
 
 	public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-		//To change body of implemented methods use File | Settings | File Templates.
+		log.info("After RuleFlowGroup {} activated.", event.getRuleFlowGroup().getName());
 	}
 
 	public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-		//To change body of implemented methods use File | Settings | File Templates.
+		log.info("Before RuleFlowGroup {} deactivated.", event.getRuleFlowGroup().getName());
 	}
 
 	public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-		//To change body of implemented methods use File | Settings | File Templates.
+		log.info("After RuleFlowGroup {} deactivated.", event.getRuleFlowGroup().getName());
 	}
 }

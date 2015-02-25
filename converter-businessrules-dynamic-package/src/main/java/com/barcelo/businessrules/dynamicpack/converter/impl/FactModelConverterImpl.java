@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -17,9 +18,13 @@ import com.barcelo.businessrules.model.api.dynamicpack.ComponentDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
 import com.barcelo.businessrules.model.api.dynamicpack.HotelDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.TransportDistribution;
+import com.barcelo.integration.engine.model.api.request.BarMasterRQ;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductAvailabilityRQ;
+import com.barcelo.integration.engine.model.api.request.pack.TOProductPreBookingRQ;
 import com.barcelo.integration.engine.model.api.response.pack.TOProductAvailabilityRS;
+import com.barcelo.integration.engine.model.api.response.pack.TOProductPreBookingRS;
 import com.barcelo.integration.engine.model.api.shared.Price;
+import com.barcelo.integration.engine.model.api.shared.Zone;
 import com.barcelo.integration.engine.model.api.shared.auth.Retail;
 import com.barcelo.integration.engine.model.api.shared.auth.Wholesaler;
 import com.barcelo.integration.engine.model.api.shared.pack.*;
@@ -45,6 +50,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 	public static final int SMALLEST_POSITIVE = 0;
 	private DynamicPackage dynamicPackage;
 	private DateTime bookingDate;
+	private String destinationGroup;
 
 	private static final String REENTRANCY_ERROR = new StringBuilder()
 			.append("Class misuse: This class")
@@ -57,6 +63,30 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 
 	public DynamicPackage toModelInterface(TOProductAvailabilityRQ toProductAvailabilityRQ,
 										   TOProductAvailabilityRS toProductAvailabilityRS) {
+		extractBasicDynamicPackage(toProductAvailabilityRQ);
+		extractDestination(toProductAvailabilityRQ.getDestinationZoneList());
+
+		List<TravellerGroup> travellerGroupList = toProductAvailabilityRQ.getTravellerGroupList();
+		extractTravellers(travellerGroupList);
+
+		this.dynamicPackage.setComponentDistributionList(extractComponents(toProductAvailabilityRS.getProductList()));
+
+		return this.dynamicPackage;
+	}
+
+	public DynamicPackage toModelInterface(TOProductPreBookingRQ toProductAvailabilityRQ,
+										   TOProductPreBookingRS toProductAvailabilityRS) {
+		extractBasicDynamicPackage(toProductAvailabilityRQ);
+
+		List<TravellerGroup> travellerGroupList = toProductAvailabilityRQ.getBooking().getTravellerGroupList();
+		extractTravellers(travellerGroupList);
+
+		this.dynamicPackage.setComponentDistributionList(extractComponents(toProductAvailabilityRS.getBooking().getProductList()));
+
+		return this.dynamicPackage;
+	}
+
+	private void extractBasicDynamicPackage(BarMasterRQ barMasterRQ) {
 		if (this.dynamicPackage != null) {
 			log.error(REENTRANCY_ERROR);
 			throw new IllegalStateException("FactModelConverterImpl has been already used.");
@@ -64,18 +94,18 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 
 		bookingDate = DateTime.now();
 		this.dynamicPackage = new DynamicPackage();
-		List<String> brandList = toProductAvailabilityRQ.getBrandList();
+		List<String> brandList = barMasterRQ.getBrandList();
 		if (brandList != null && brandList.size() > 0) {
 			// TODO - dag-vsf - 29/01/2015 - Revisar modelo para poder guardar todas las marcas del paquete
 			this.dynamicPackage.setBrand(brandList.get(0));
 		}
-		if (toProductAvailabilityRQ.getPOS() != null && toProductAvailabilityRQ.getPOS().getSource() != null) {
-			Retail retail = toProductAvailabilityRQ.getPOS().getSource().getRetail();
+		if (barMasterRQ.getPOS() != null && barMasterRQ.getPOS().getSource() != null) {
+			Retail retail = barMasterRQ.getPOS().getSource().getRetail();
 			if (retail != null) {
 				this.dynamicPackage.setChannel(retail.getChannel());
 				this.dynamicPackage.setSubChannel(retail.getSubChannel());
 			}
-			Wholesaler wholesaler = toProductAvailabilityRQ.getPOS().getSource().getWholesaler();
+			Wholesaler wholesaler = barMasterRQ.getPOS().getSource().getWholesaler();
 			if (wholesaler != null) {
 				this.dynamicPackage.setManagementGroup(wholesaler.getManagementGroup());
 				this.dynamicPackage.setAgency(wholesaler.getAgency());
@@ -83,14 +113,34 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 			}
 		}
 		this.dynamicPackage.setBookingDate(bookingDate.toDate());
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(this.dynamicPackage.getBookingDate());
-		int bookingWeekday = calendar.get(Calendar.DAY_OF_WEEK);
+		int bookingWeekday = calculateWeekday(this.dynamicPackage.getBookingDate());
 		this.dynamicPackage.setBookingWeekday(bookingWeekday);
+	}
 
+	private void extractDestination(List<Zone> zones) {
+		if (zones == null || zones.size() == 0) return;
+
+		LinkedHashSet<String> rootZones = new LinkedHashSet<String>();
+
+		rootZones.add(zones.get(0).getCode());
+
+		for (Zone zone : zones) {
+			if (rootZones.contains(zone.getCode())) {
+				rootZones.remove(zone.getCode());
+				for (Zone ancestor : zone.getAncestorList()) {
+					rootZones.add(ancestor.getCode());
+				}
+			}
+		}
+
+		if (rootZones.size() > 0) {
+			this.destinationGroup = rootZones.iterator().next();
+		}
+	}
+
+	private void extractTravellers(List<TravellerGroup> travellerGroupList) {
 		List<com.barcelo.businessrules.model.api.dynamicpack.Traveller> travellers =
 				new ArrayList<com.barcelo.businessrules.model.api.dynamicpack.Traveller>();
-		List<TravellerGroup> travellerGroupList = toProductAvailabilityRQ.getTravellerGroupList();
 		for (TravellerGroup travellerGroup : travellerGroupList) {
 			List<Traveller> travellerList = travellerGroup.getTravellerList();
 			for (Traveller travellerOrigin : travellerList) {
@@ -102,16 +152,11 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 			}
 		}
 		this.dynamicPackage.setTravellerList(travellers);
-
-		this.dynamicPackage.setComponentDistributionList(extractComponents(toProductAvailabilityRS));
-
-		return this.dynamicPackage;
 	}
 
-	private List<ComponentDistribution> extractComponents(TOProductAvailabilityRS toProductAvailabilityRS) {
+	private List<ComponentDistribution> extractComponents(List<TOProduct> productList) {
 		List<ComponentDistribution> result = new ArrayList<ComponentDistribution>();
 
-		List<TOProduct> productList = toProductAvailabilityRS.getProductList();
 		if (productList != null) {
 			for (TOProduct toProduct : productList) {
 				if (toProduct instanceof TOPackage) {
@@ -128,6 +173,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 
 		return result;
 	}
+
 	private void flattenTOPackage(List<ComponentDistribution> result, TOPackage toPackage) {
 		List<PackageOption> optionList = toPackage.getOptionList();
 		if (optionList != null) {
@@ -170,6 +216,8 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 
 		transportDistribution.setDaysInAdvance(daysBetween(bookingDate.toDate(), departureDate));
 
+		transportDistribution.setDestinationGroup(this.destinationGroup);
+
 		/* Hay que acumular todas las compañias de todos los segmentos de todos los itinerarios,
 		 * así que usaremos esta lista para hacerlo.
 		 */
@@ -184,71 +232,47 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 				List<ItineraryOption> optionList = itinerary.getOptionList();
 				if (optionList != null) {
 					for (ItineraryOption itineraryOption : optionList) {
-						TOPriceInformation priceInformation = itineraryOption.getPriceInformation();
-						if (priceInformation != null) {
-							if (transportDistribution.getPriceInformationRef() == null) {
-								// Primer precio, lo tomamos como referencia a modificar
-								transportDistribution.setPriceInformationRef(priceInformation);
-								Price commissionableAmount = priceInformation.getCommissionableAmount();
-								transportDistribution.setCommissionableAmount(commissionableAmount.getPrice());
-								Price nonCommissionableAmount = priceInformation.getNonCommissionableAmount();
-								transportDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
-								Price commissionAmount = priceInformation.getCommissionAmount();
-								transportDistribution.setCommissionAmount(commissionAmount.getPrice());
-								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
-								transportDistribution.setCommissionTaxesAmount(commissionTaxesAmount.getPrice());
-
-								result.add(transportDistribution);
-							} else {
-								// Precios adicionales, acumularlos
-								BigDecimal commissionableAmount = transportDistribution.getCommissionableAmount();
-								commissionableAmount = commissionableAmount.add(
-										priceInformation.getCommissionableAmount().getPrice());
-								transportDistribution.setCommissionableAmount(commissionableAmount);
-								BigDecimal nonCommissionableAmount = transportDistribution.getNonCommissionableAmount();
-								nonCommissionableAmount = nonCommissionableAmount.add(
-										priceInformation.getNonCommissionableAmount().getPrice());
-								transportDistribution.setNonCommissionableAmount(nonCommissionableAmount);
-								BigDecimal commissionAmount = transportDistribution.getCommissionAmount();
-								commissionAmount = commissionAmount.add(
-										priceInformation.getCommissionAmount().getPrice());
-								transportDistribution.setCommissionAmount(commissionAmount);
-								BigDecimal commissionTaxesAmount = transportDistribution.getCommissionTaxesAmount();
-								commissionTaxesAmount = commissionTaxesAmount.add(
-										priceInformation.getCommissionTaxesAmount().getPrice());
-								transportDistribution.setCommissionTaxesAmount(commissionTaxesAmount);
-							}
-
-							if (itineraryOption.getProvider() != null) {
-								// TODO - dag-vsf - 29/01/2015 - que hacer con los proveedores distintos por itinerario
-								transportDistribution.setProvider(itineraryOption.getProvider().getProviderID());
-							}
-						}
-
-						List<Segment> segmentList = itineraryOption.getSegmentList();
-						if (segmentList != null) {
-							// Acumulación de escalas
-							int escalas = segmentList.size();
-							if (escalas > SMALLEST_POSITIVE) {
-								escalas--; // Las escalas son 1 menos que los segmentos
-							}
-							escalas += transportDistribution.getSegmentCount();
-							transportDistribution.setSegmentCount(escalas);
-
-							if (!segmentList.isEmpty()) {
-								// Reune las compañias de este itinerario
-								List<String> company = new ArrayList<String>();
-								for (Segment segment : segmentList) {
-									company.add(segment.getCompany());
-								}
-								// Y acumulalas al resto.
-								transportDistribution.getCompanyList().addAll(company);
-								// TODO - dag-vsf - 29/01/2015 - que hacer con las cabinas distintas por segmento?
-								transportDistribution.setCabin(segmentList.get(0).getCabin());
-							}
-						}
+						processItineraryOption(result, transportDistribution, itineraryOption);
 					}
 				}
+			}
+		}
+	}
+
+	private static void processItineraryOption(List<ComponentDistribution> result, TransportDistribution transportDistribution, ItineraryOption itineraryOption) {
+		TOPriceInformation priceInformation = itineraryOption.getPriceInformation();
+		if (priceInformation != null) {
+			if (transportDistribution.getPriceInformationRef() == null) {
+				result.add(transportDistribution);
+			}
+			processPriceData(transportDistribution, priceInformation);
+
+			if (itineraryOption.getProvider() != null) {
+				// TODO - dag-vsf - 29/01/2015 - que hacer con los proveedores distintos por itinerario
+				transportDistribution.setProvider(itineraryOption.getProvider().getProviderID());
+			}
+		}
+
+		List<Segment> segmentList = itineraryOption.getSegmentList();
+		if (segmentList != null) {
+			// Acumulación de escalas
+			int escalas = segmentList.size();
+			if (escalas > SMALLEST_POSITIVE) {
+				escalas--; // Las escalas son 1 menos que los segmentos
+			}
+			escalas += transportDistribution.getSegmentCount();
+			transportDistribution.setSegmentCount(escalas);
+
+			if (!segmentList.isEmpty()) {
+				// Reune las compañias de este itinerario
+				List<String> company = new ArrayList<String>();
+				for (Segment segment : segmentList) {
+					company.add(segment.getCompany());
+				}
+				// Y acumulalas al resto.
+				transportDistribution.getCompanyList().addAll(company);
+				// TODO - dag-vsf - 29/01/2015 - que hacer con las cabinas distintas por segmento?
+				transportDistribution.setCabin(segmentList.get(0).getCabin());
 			}
 		}
 	}
@@ -280,6 +304,8 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 
 							hotelDistribution.setDaysInAdvance(daysInAdvance);
 
+							hotelDistribution.setDestinationGroup(this.destinationGroup);
+
 							hotelDistribution.setChain(stay.getHotelChainID());
 							hotelDistribution.setHotel(stay.getBhc());
 							// TODO - dag-vsf - 30/01/2015 - Necesitamos confirmación de cual es el campo correspondiente del modelo
@@ -290,36 +316,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 
 							hotelDistribution.setRateType(stayOption.getContractID());
 
-							if (hotelDistribution.getPriceInformationRef() == null) {
-								// Primer precio, lo tomamos como referencia a modificar
-								hotelDistribution.setPriceInformationRef(priceInformation);
-								Price commissionableAmount = priceInformation.getCommissionableAmount();
-								hotelDistribution.setCommissionableAmount(commissionableAmount.getPrice());
-								Price nonCommissionableAmount = priceInformation.getNonCommissionableAmount();
-								hotelDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
-								Price commissionAmount = priceInformation.getCommissionAmount();
-								hotelDistribution.setCommissionAmount(commissionAmount.getPrice());
-								Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
-								hotelDistribution.setCommissionTaxesAmount(commissionTaxesAmount.getPrice());
-							} else {
-								// Precios adicionales, acumularlos
-								BigDecimal commissionableAmount = hotelDistribution.getCommissionableAmount();
-								commissionableAmount = commissionableAmount.add(
-										priceInformation.getCommissionableAmount().getPrice());
-								hotelDistribution.setCommissionableAmount(commissionableAmount);
-								BigDecimal nonCommissionableAmount = hotelDistribution.getNonCommissionableAmount();
-								nonCommissionableAmount = nonCommissionableAmount.add(
-										priceInformation.getNonCommissionableAmount().getPrice());
-								hotelDistribution.setNonCommissionableAmount(nonCommissionableAmount);
-								BigDecimal commissionAmount = hotelDistribution.getCommissionAmount();
-								commissionAmount = commissionAmount.add(
-										priceInformation.getCommissionAmount().getPrice());
-								hotelDistribution.setCommissionAmount(commissionAmount);
-								BigDecimal commissionTaxesAmount = hotelDistribution.getCommissionTaxesAmount();
-								commissionTaxesAmount = commissionTaxesAmount.add(
-										priceInformation.getCommissionTaxesAmount().getPrice());
-								hotelDistribution.setCommissionTaxesAmount(commissionTaxesAmount);
-							}
+							processPriceData(hotelDistribution, priceInformation);
 
 							if (stayOption.getProvider() != null) {
 								// TODO - dag-vsf - 29/01/2015 - que hacer con los proveedores distintos por itinerario
@@ -334,13 +331,52 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		}
 	}
 
+	private static void processPriceData(ComponentDistribution componentDistribution,
+										 TOPriceInformation priceInformation) {
+		if (componentDistribution.getPriceInformationRef() == null) {
+			// Primer precio, lo tomamos como referencia a modificar
+			componentDistribution.setPriceInformationRef(priceInformation);
+			Price commissionableAmount = priceInformation.getCommissionableAmount();
+			componentDistribution.setCommissionableAmount(commissionableAmount.getPrice());
+			Price nonCommissionableAmount = priceInformation.getNonCommissionableAmount();
+			componentDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
+			Price commissionAmount = priceInformation.getCommissionAmount();
+			componentDistribution.setCommissionAmount(commissionAmount.getPrice());
+			Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
+			componentDistribution.setCommissionTaxesAmount(commissionTaxesAmount.getPrice());
+			BigDecimal commissionTaxPercentage = priceInformation.getCommissionTaxPercentage();
+			componentDistribution.setTaxRate(commissionTaxPercentage);
+
+			// This should not be necessary. Some rule is broken.
+			componentDistribution.setTotalAmount(BigDecimal.ZERO);
+		} else {
+			// Precios adicionales, acumularlos
+			BigDecimal commissionableAmount = componentDistribution.getCommissionableAmount();
+			commissionableAmount = commissionableAmount.add(
+					priceInformation.getCommissionableAmount().getPrice());
+			componentDistribution.setCommissionableAmount(commissionableAmount);
+			BigDecimal nonCommissionableAmount = componentDistribution.getNonCommissionableAmount();
+			nonCommissionableAmount = nonCommissionableAmount.add(
+					priceInformation.getNonCommissionableAmount().getPrice());
+			componentDistribution.setNonCommissionableAmount(nonCommissionableAmount);
+			BigDecimal commissionAmount = componentDistribution.getCommissionAmount();
+			commissionAmount = commissionAmount.add(
+					priceInformation.getCommissionAmount().getPrice());
+			componentDistribution.setCommissionAmount(commissionAmount);
+			BigDecimal commissionTaxesAmount = componentDistribution.getCommissionTaxesAmount();
+			commissionTaxesAmount = commissionTaxesAmount.add(
+					priceInformation.getCommissionTaxesAmount().getPrice());
+			componentDistribution.setCommissionTaxesAmount(commissionTaxesAmount);
+		}
+	}
+
 	private final Calendar weekdayCalendar = Calendar.getInstance();
 	private int calculateWeekday(Date date) {
 		weekdayCalendar.setTime(date);
 		return weekdayCalendar.get(Calendar.DAY_OF_WEEK);
 	}
 
-	private int daysBetween(Date startDate, Date endDate) {
+	private static int daysBetween(Date startDate, Date endDate) {
 		LocalDate departureLocalDate = new LocalDate(startDate.getTime());
 		LocalDate arrivalLocalDate = new LocalDate(endDate.getTime());
 		return Days.daysBetween(departureLocalDate, arrivalLocalDate).getDays();
