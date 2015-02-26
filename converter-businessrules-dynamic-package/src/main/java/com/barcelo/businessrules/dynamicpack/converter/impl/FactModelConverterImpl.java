@@ -115,6 +115,8 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		this.dynamicPackage.setBookingDate(bookingDate.toDate());
 		int bookingWeekday = calculateWeekday(this.dynamicPackage.getBookingDate());
 		this.dynamicPackage.setBookingWeekday(bookingWeekday);
+
+		this.dynamicPackage.setDebugTraces(barMasterRQ.isDebugTraces());
 	}
 
 	private void extractDestination(List<Zone> zones) {
@@ -339,7 +341,11 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 			Price commissionableAmount = priceInformation.getCommissionableAmount();
 			componentDistribution.setCommissionableAmount(commissionableAmount.getPrice());
 			Price nonCommissionableAmount = priceInformation.getNonCommissionableAmount();
-			componentDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
+			if (nonCommissionableAmount != null) {
+				componentDistribution.setNonCommissionableAmount(nonCommissionableAmount.getPrice());
+			} else {
+				componentDistribution.setNonCommissionableAmount(BigDecimal.ZERO);
+			}
 			Price commissionAmount = priceInformation.getCommissionAmount();
 			componentDistribution.setCommissionAmount(commissionAmount.getPrice());
 			Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();

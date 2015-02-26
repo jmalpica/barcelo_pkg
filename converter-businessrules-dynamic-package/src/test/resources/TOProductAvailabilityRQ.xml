@@ -1,0 +1,65 @@
+<toProductAvailabilityRQ
+    destinationCode = "COMERCIAL43"
+    destinationType = "COMMERCIAL_DESTINATION"
+    fromDate = "2015-03-22T00:00:00+01:00"
+    numberOfNights = "7"
+    categoryCode = "a83d970b-c783-49aa"
+    maxWaitTime = "100000"
+    iataOrigin = "MAD"
+    iataDestination = "MAH"
+    transportType = "FLIGHT"
+    nonStop = "false"
+    manualServiceCombination = "true"
+    xmlns:ns2 = "http://barcelo.ws.barcelo.com/">
+    <POS>
+        <Source
+            locale = "es_ES"
+            system = "PD_JOL_F"
+            session = "P335050966">
+            <RequestorID
+                messagePassword = "BVINT"
+                company = "E00"
+                office = "17"
+                user = "PD_JOL_F"
+                agentID = "AEZQUERRO"
+                agentPassword = "AEZQUERRO"/>
+            <Retail channel = "B2B" subChannel = "BOAJOLIDEY"/>
+            <Wholesaler
+                managementGroup = "AP32047"
+                agency = "C2463966"
+                branchOffice = "BARCEL0121"/>
+        </Source>
+    </POS>
+    <BrandList>047011</BrandList>
+    <DestinationZoneList type = "COMMERCIAL_DESTINATION">
+        <code>COMERCIAL43</code>
+        <description>Menorca</description>
+        <ancestorList type = "COMMERCIAL_DESTINATION">
+            <code>BALEARES</code>
+            <description>Baleares</description>
+            <ancestorList type = "COMMERCIAL_DESTINATION">
+                <code>ISLAS</code>
+                <description>ISLAS</description>
+                <ancestorList type = "COMMERCIAL_DESTINATION">
+                    <code>DATAMART</code>
+                    <description>ZONAS ARBOL COMERCIAL</description>
+                </ancestorList>
+            </ancestorList>
+        </ancestorList>
+    </DestinationZoneList>
+    <DebugTraces>true</DebugTraces>
+    <TravellerGroupList groupID = "1">
+        <TravellerList
+            index = "11"
+            age = "30"
+            resident = "false"/>
+        <TravellerList
+            index = "12"
+            age = "30"
+            resident = "false"/>
+    </TravellerGroupList>
+    <OptionTypeCodeList>PACKAGE</OptionTypeCodeList>
+    <AdditionalTransportDetails lowCost = "true" returnType = "ROUND_TRIP"/>
+    <AdditionalFilterList informationID = "transfersRequired" value = "false"/>
+    <AdditionalFilterList informationID = "carHireRequired" value = "false"/>
+</toProductAvailabilityRQ>

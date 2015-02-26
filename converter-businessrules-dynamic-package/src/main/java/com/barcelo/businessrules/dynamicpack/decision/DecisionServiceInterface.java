@@ -1,7 +1,9 @@
 package com.barcelo.businessrules.dynamicpack.decision;
 
+import com.barcelo.integration.engine.model.api.request.BarMasterRQ;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductAvailabilityRQ;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductPreBookingRQ;
+import com.barcelo.integration.engine.model.api.response.BarMasterRS;
 import com.barcelo.integration.engine.model.api.response.pack.TOProductAvailabilityRS;
 import com.barcelo.integration.engine.model.api.response.pack.TOProductPreBookingRS;
 
@@ -10,6 +12,8 @@ import com.barcelo.integration.engine.model.api.response.pack.TOProductPreBookin
  */
 public interface DecisionServiceInterface {
 	public static final String SERVICENAME = "decisionServiceInterface";
+
+	void calculatePrices(BarMasterRQ barMasterRQ, BarMasterRS barMasterRS);
 
 	void calculatePrices(TOProductAvailabilityRQ toProductAvailabilityRQ,
 						 TOProductAvailabilityRS toProductAvailabilityRS);

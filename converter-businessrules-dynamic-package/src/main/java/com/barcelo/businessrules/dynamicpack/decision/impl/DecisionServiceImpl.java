@@ -2,8 +2,8 @@ package com.barcelo.businessrules.dynamicpack.decision.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.drools.runtime.StatefulKnowledgeSession;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +13,11 @@ import com.barcelo.businessrules.dynamicpack.converter.FactModelConverterInterfa
 import com.barcelo.businessrules.dynamicpack.converter.impl.ApiModelConverterImpl;
 import com.barcelo.businessrules.dynamicpack.converter.impl.FactModelConverterImpl;
 import com.barcelo.businessrules.dynamicpack.decision.DecisionServiceInterface;
+import com.barcelo.businessrules.dynamicpack.decision.DecisionSessionInterface;
 import com.barcelo.businessrules.model.api.dynamicpack.ComponentDistribution;
 import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
 import com.barcelo.businessrules.model.api.dynamicpack.Traveller;
+import com.barcelo.integration.engine.model.api.request.BarMasterRQ;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductAvailabilityRQ;
 import com.barcelo.integration.engine.model.api.request.pack.TOProductPreBookingRQ;
 import com.barcelo.integration.engine.model.api.response.BarMasterRS;
@@ -41,14 +43,25 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 	@Autowired
 	private DecisionManager decisionManager;
 
+	public void calculatePrices(BarMasterRQ barMasterRQ, BarMasterRS barMasterRS) {
+		if (barMasterRQ instanceof TOProductAvailabilityRQ && barMasterRS instanceof TOProductAvailabilityRS) {
+			calculatePrices((TOProductAvailabilityRQ) barMasterRQ, (TOProductAvailabilityRS) barMasterRS);
+		} else if (barMasterRQ instanceof TOProductPreBookingRQ && barMasterRS instanceof TOProductPreBookingRS) {
+			calculatePreBookingPrices((TOProductPreBookingRQ) barMasterRQ, (TOProductPreBookingRS) barMasterRS);
+		} else {
+			throw new IllegalArgumentException("The inputs are not instances of the right classes");
+		}
+	}
+
 	public void calculatePrices(TOProductAvailabilityRQ toProductAvailabilityRQ,
 								TOProductAvailabilityRS toProductAvailabilityRS) {
 		long start = System.currentTimeMillis();
 
 		log.info("Convirtiendo al modelo de hechos");
-		DynamicPackage dynamicPackage = toFactModel(toProductAvailabilityRQ, toProductAvailabilityRS);
+		FactModelConverterInterface converter = getFactConverter();
+		DynamicPackage dynamicPackage = converter.toModelInterface(toProductAvailabilityRQ, toProductAvailabilityRS);
 
-		calculatePricesOnFacts(dynamicPackage);
+		calculatePricesOnFacts(dynamicPackage, false, false);
 
 		log.info("Convirtiendo al modelo JAXB.");
 		toApplicationModel(dynamicPackage, toProductAvailabilityRS);
@@ -63,56 +76,54 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 	 * be made in another JUnit test using several round-trips over a known XML)
 	 * @param dynamicPackage The package that holds all the Facts to evaluate the rules over.
 	 */
-	void calculatePricesOnFacts(DynamicPackage dynamicPackage) {
+	Map<String, Integer> calculatePricesOnFacts(DynamicPackage dynamicPackage, boolean countActivations, boolean logObjects) {
 		log.info("Convirtiendo a lista de hechos");
 		List<Object> factList = addFacts(dynamicPackage);
 		log.info("Creando la sesion");
-		StatefulKnowledgeSession kieSession = decisionManager.createKieSession();
+		DecisionSessionInterface kieSession = decisionManager.createKieSession();
+
+		kieSession.configureMonitorization(dynamicPackage.isDebugTraces(), countActivations, logObjects);
+
 		log.info("Insertando hechos");
 		for (Object fact : factList) {
 			kieSession.insert(fact);
-			log.info("Insertando hecho : {}.", fact);
+			if (logObjects) {
+				log.info("Insertando hecho : {}.", fact);
+			}
 		}
-/*
-		kieSession.getAgenda().getAgendaGroup("commission_and_markup").setFocus();
-		kieSession.getAgenda().getAgendaGroup("setup").setFocus();
-*/
+
+		log.info("Programando agendas...");
+		kieSession.scheduleAgendaGroup("setup");
+		kieSession.scheduleAgendaGroup("commission_and_markup");
+
 		log.info("Llamando a fireAllRules.");
 		kieSession.fireAllRules();
 
+		Map<String,Integer> result = null;
+		if (countActivations) {
+			result = kieSession.getCountingMap();
+		}
+
 		log.info("Eliminando la sesion.");
 		kieSession.dispose();
-		for (Traveller traveller : dynamicPackage.getTravellerList()) {
-			log.info("Traveller : {}", traveller);
-		}
-		/*
-		for (ComponentDistribution componentDistribution : dynamicPackage.getComponentDistributionList()) {
-			componentDistribution.calculatePrices();
-		}
-		*/
+
+		return result;
 	}
 
-	public void calculatePreBookingPrices(TOProductPreBookingRQ toProductAvailabilityRQ,
-										  TOProductPreBookingRS toProductAvailabilityRS) {
+	public void calculatePreBookingPrices(TOProductPreBookingRQ toProductPreBookingRQ,
+										  TOProductPreBookingRS toProductPreBookingRS) {
 		long start = System.currentTimeMillis();
 
 		log.info("Convirtiendo al modelo de hechos");
-		DynamicPackage dynamicPackage = toFactModel(toProductAvailabilityRQ, toProductAvailabilityRS);
+		FactModelConverterInterface converter = getFactConverter();
+		DynamicPackage dynamicPackage = converter.toModelInterface(toProductPreBookingRQ, toProductPreBookingRS);
 
-		calculatePricesOnFacts(dynamicPackage);
+		calculatePricesOnFacts(dynamicPackage, false, false);
 
 		log.info("Convirtiendo al modelo JAXB.");
-		toApplicationModel(dynamicPackage, toProductAvailabilityRS);
+		toApplicationModel(dynamicPackage, toProductPreBookingRS);
 
 		log.info("calculatePrices run in : {} ms.", System.currentTimeMillis() - start);
-	}
-
-	private DynamicPackage toFactModel(TOProductAvailabilityRQ request, TOProductAvailabilityRS response) {
-		return getFactConverter().toModelInterface(request, response);
-	}
-
-	private DynamicPackage toFactModel(TOProductPreBookingRQ request, TOProductPreBookingRS response) {
-		return getFactConverter().toModelInterface(request, response);
 	}
 
 	private FactModelConverterInterface getFactConverter() {

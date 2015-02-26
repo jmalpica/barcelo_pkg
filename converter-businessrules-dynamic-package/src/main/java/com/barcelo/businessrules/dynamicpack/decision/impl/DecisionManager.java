@@ -16,9 +16,10 @@ import org.drools.io.ResourceChangeScanner;
 import org.drools.io.ResourceChangeScannerConfiguration;
 import org.drools.io.ResourceFactory;
 import org.drools.io.impl.ClassPathResource;
-import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.springframework.stereotype.Component;
+
+import com.barcelo.businessrules.dynamicpack.decision.DecisionSessionInterface;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,7 +94,7 @@ public class DecisionManager {
 		log.info("Inicializando Drools en : " + (System.currentTimeMillis() - start));
 	}
 
-	public StatefulKnowledgeSession createKieSession() {
+	public DecisionSessionInterface createKieSession() {
 		if (this.knowledgeAgent == null) {
 			log.warn("Drools is unitialized. If you are not using Spring, call postConstruct() manually");
 			postConstruct();
@@ -104,13 +105,7 @@ public class DecisionManager {
 		}
 
 		StatefulKnowledgeSession kieSession = knowledgeBase.newStatefulKnowledgeSession();
-		kieSession.addEventListener(new PkgAgendaEventListener(true, false));
-		if (log.isTraceEnabled()) {
-			kieSession.addEventListener(new PkgWorkingMemoryEventListener());
-			/* KnowledgeRuntimeLogger logger = */
-			KnowledgeRuntimeLoggerFactory.newFileLogger(kieSession, "kie_session");
-		}
 
-		return kieSession;
+		return new DecisionSessionImpl(kieSession);
 	}
 }

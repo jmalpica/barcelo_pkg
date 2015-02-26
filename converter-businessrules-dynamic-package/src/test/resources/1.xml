@@ -18,7 +18,6 @@ destinationCode="COMERCIAL40">
       </Source>
    </POS>
    <BrandList>047011</BrandList>
-   <season>BAJA</season>
    <DestinationZoneList>
       <code>QUI</code>
       <ancestorList>
@@ -88,7 +87,7 @@ destinationCode="COMERCIAL40">
          <code>EUROPA</code>
       </ancestorList>
    </DestinationZoneList>
-   <debugTraces>Y</debugTraces>
+   <DebugTraces>true</DebugTraces>
    <TravellerGroupList groupID="1">
       <TravellerList resident="false" age="30" index="11"/>
       <TravellerList resident="false" age="30" index="12"/>

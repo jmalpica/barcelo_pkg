@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+// import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.joda.time.DateTime;
@@ -39,16 +40,29 @@ public class FactModelConverterImplTest {
 		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
-		File file1 = new File("src/test/resources/1.xml");
+		File file1 = new File("src/test/resources/TOProductAvailabilityRQ.xml");
 		TOProductAvailabilityRQ toProductAvailabilityRQ = (TOProductAvailabilityRQ) jaxbUnmarshaller.unmarshal(file1);
 		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
+
+/*
+		toProductAvailabilityRQ.setDebugTraces(true);
+
+		start = System.currentTimeMillis();
+		Marshaller jaxbMarshaller = jaxbContextRQ.createMarshaller();
+		log.info("Creando Marshaller en : " + (System.currentTimeMillis() - start));
+
+		start = System.currentTimeMillis();
+		File file2 = new File("src/test/resources/2.xml");
+		jaxbMarshaller.marshal(toProductAvailabilityRQ, file2);
+		log.info("Marshalling en : " + (System.currentTimeMillis() - start));
+*/
 
 		start = System.currentTimeMillis();
 		jaxbUnmarshaller = jaxbContextRS.createUnmarshaller();
 		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
-		File file2 = new File("src/test/resources/ej_PD_JOL_F_Mallorca_optimizada.xml");
+		File file2 = new File("src/test/resources/TOProductAvailabilityRS.xml");
 		TOProductAvailabilityRS toProductAvailabilityRS = (TOProductAvailabilityRS) jaxbUnmarshaller.unmarshal(file2);
 		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
 

@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>com.barcelo.businessrules.dynamicpack</groupId>
 			<artifactId>model-businessrules-dynamic-package</artifactId>
-			<version>0.0.6-SNAPSHOT</version>
+			<version>0.0.7-SNAPSHOT</version>
 		</dependency>
 		<!-- dependency>
 		    <groupId>org.eclipse.persistence</groupId>

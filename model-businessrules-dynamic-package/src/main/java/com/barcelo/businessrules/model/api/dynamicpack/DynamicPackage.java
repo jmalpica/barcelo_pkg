@@ -26,4 +26,5 @@ public class DynamicPackage {
 	private int bookingWeekday;
 	private List<Traveller> travellerList;
 	private List<ComponentDistribution> componentDistributionList;
+	private boolean debugTraces;
 }
