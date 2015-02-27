@@ -48,7 +48,7 @@ public class DecisionManager {
 		}
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		return pollingInterval;
 	}
 
