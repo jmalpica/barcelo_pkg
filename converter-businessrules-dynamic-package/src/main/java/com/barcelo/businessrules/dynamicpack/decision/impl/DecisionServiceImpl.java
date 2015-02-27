@@ -80,7 +80,13 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 		log.info("Convirtiendo a lista de hechos");
 		List<Object> factList = addFacts(dynamicPackage);
 		log.info("Creando la sesion");
-		DecisionSessionInterface kieSession = decisionManager.createKieSession();
+
+		if (this.decisionManager == null) {
+			log.warn("The decision manager has not been properly initialized. Is Spring correctly configured?");
+			this.decisionManager = new DecisionManager();
+		}
+
+		DecisionSessionInterface kieSession = this.decisionManager.createKieSession();
 
 		kieSession.configureMonitorization(dynamicPackage.isDebugTraces(), countActivations, logObjects);
 
