@@ -7,5 +7,18 @@
 	http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context.xsd">
-	<context:component-scan base-package="com.barcelo.businessrules.dynamicpack" />
+	<!-- context:component-scan base-package="com.barcelo.businessrules.dynamicpack" / -->
+
+	<bean name="decisionServiceInterface"
+		class="com.barcelo.businessrules.dynamicpack.decision.impl.DecisionServiceImpl">
+	</bean>
+	<bean name="decisionManager" class="com.barcelo.businessrules.dynamicpack.decision.impl.DecisionManager">
+		<!-- property name="pollingInterval" value="15"/ -->
+	</bean>
+	<!-- WARNING: The prototype scope in the following beans is required. App WILL BREAK if removed. -->
+	<bean name="factModelConverterInterface" scope="prototype"
+		class="com.barcelo.businessrules.dynamicpack.converter.impl.FactModelConverterImpl"/>
+	<bean name="apiModelConverterInterface" scope="prototype"
+		class="com.barcelo.businessrules.dynamicpack.converter.impl.ApiModelConverterImpl"/>
+	<!-- WARNING: The prototype scope in the previous beans is required. App WILL BREAK if removed. -->
 </beans>
