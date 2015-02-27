@@ -52,7 +52,7 @@ public class DecisionServiceImplTest {
 		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
-		File file1 = new File("src/test/resources/1.xml");
+		File file1 = new File("src/test/resources/TOProductAvailabilityRQ.xml");
 		this.toProductAvailabilityRQ = (TOProductAvailabilityRQ) jaxbUnmarshaller.unmarshal(file1);
 		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
 
@@ -61,7 +61,7 @@ public class DecisionServiceImplTest {
 		log.info("Creando Unmarshaller en : " + (System.currentTimeMillis() - start));
 
 		start = System.currentTimeMillis();
-		File file2 = new File("src/test/resources/response_prueba_simple.xml");
+		File file2 = new File("src/test/resources/TOProductAvailabilityRS.xml");
 		this.toProductAvailabilityRS = (TOProductAvailabilityRS) jaxbUnmarshaller.unmarshal(file2);
 		log.info("Unmarshalling en : " + (System.currentTimeMillis() - start));
 

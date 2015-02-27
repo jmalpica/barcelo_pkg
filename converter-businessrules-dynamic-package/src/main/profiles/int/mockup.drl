@@ -1,0 +1,91 @@
+package PkgDinamicoBV;
+
+import com.barcelo.businessrules.model.api.dynamicpack.DynamicPackage;
+import com.barcelo.businessrules.model.api.dynamicpack.Traveller;
+import com.barcelo.businessrules.model.api.dynamicpack.ComponentDistribution;
+import com.barcelo.businessrules.model.api.dynamicpack.HotelDistribution;
+import com.barcelo.businessrules.model.api.dynamicpack.TransportDistribution;
+
+rule "MOCKUP DT_DETERMINE_PAX_AGE_TYPE"
+	agenda-group "setup"
+	dialect "mvel"
+	when
+		$t : Traveller( age >= 0 , age <= 1000 , ageType == null )
+	then
+		$t.setAgeType( "ADULT" );
+		update( $t );
+end
+
+rule "MOCKUP DT_DETERMINE_STAY_SEASON"
+	agenda-group "setup"
+	dialect "mvel"
+	when
+		$cd : ComponentDistribution( startDateTime >= "01-Jan-2015" , startDateTime <= "31-Dec-2015" , season == null )
+	then
+		$cd.setSeason( "BAJA" );
+		update( $cd );
+end
+
+rule "MOCKUP DT_DETERMINE_HOTEL_COMMISSION"
+	lock-on-active true
+	agenda-group "commission_and_markup"
+	dialect "mvel"
+	when
+		$hdc : HotelDistribution( season == "BAJA" , daysInAdvance >= 0 , season != null )
+		not Traveller( ageType == null )
+	then
+		$hdc.setAddCommissionRate( 0.12B );
+		$hdc.setAddOverCommissionAmount( 10.00B );
+		update( $hdc );
+end
+
+rule "MOCKUP DT_DETERMINE_HOTEL_MARKUP"
+	agenda-group "commission_and_markup"
+	lock-on-active true
+	dialect "mvel"
+	when
+		$hd : HotelDistribution( season == "BAJA" , daysInAdvance >= 0 , season != null )
+		not Traveller( ageType == null )
+	then
+		$hd.setAddProfitabilityRate( 0.06B );
+		update( $hd );
+end
+
+rule "MOCKUP DT_DETERMINE_TRANSPORT_COMMISSION"
+	agenda-group "commission_and_markup"
+	lock-on-active true
+	dialect "mvel"
+	when
+		$td : TransportDistribution( season == "BAJA" , daysInAdvance >= 0 , season != null )
+		not Traveller( ageType == null )
+	then
+		$td.setAddCommissionRate( 0.12B );
+		$td.setAddOverCommissionAmount( 10.00B );
+		update( $td );
+end
+
+rule "MOCKUP DT_DETERMINE_TRANSPORT_MARKUP"
+	agenda-group "commission_and_markup"
+	lock-on-active true
+	dialect "mvel"
+	when
+		$td : TransportDistribution( season == "BAJA" , daysInAdvance >= 0 , season != null )
+		not Traveller( ageType == null )
+	then
+		$td.setAddProfitabilityRate( 0.06B );
+		update( $td );
+end
+
+rule "CALCULATE_PRICES"
+	agenda-group "calculate"
+	lock-on-active true
+	dialect "mvel"
+	when
+		$cd : ComponentDistribution( commissionableAmount != null , nonCommissionableAmount != null ,
+		 commissionRate != null , overCommissionAmount != null , profitabilityRate != null ,
+		  taxRate != null , season != null )
+		not (Traveller( ageType == null ))
+	then
+		$cd.calculatePrices( );
+		update( $cd );
+end

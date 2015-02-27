@@ -35,6 +35,19 @@ public class DecisionManager {
 	private KnowledgeBase knowledgeBase;
 	private ResourceChangeScanner scannerService;
 
+	public DecisionManager() {
+		Properties resourceChangeScannerProperties = new Properties();
+		try {
+			InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("KnowledgeAgent.properties");
+			resourceChangeScannerProperties.load(inputStream);
+			inputStream.close();
+			String interval = resourceChangeScannerProperties.getProperty("drools.resource.scanner.interval", "60");
+			pollingInterval = Integer.valueOf(interval);
+		} catch (IOException e) {
+			log.error("While loading the Properties file to configure scanning: ", e);
+		}
+	}
+
 	public long getPollingInterval() {
 		return pollingInterval;
 	}
@@ -61,18 +74,10 @@ public class DecisionManager {
 		long start = System.currentTimeMillis();
 
 		scannerService = ResourceFactory.getResourceChangeScannerService();
-		Properties resourceChangeScannerProperties = new Properties();
-		try {
-			InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("KnowledgeAgent.properties");
-			resourceChangeScannerProperties.load(inputStream);
-			inputStream.close();
-		} catch (IOException e) {
-			log.error("While loading the Properties file to configure scanning: ", e);
-		}
 		ResourceChangeScannerConfiguration scannerConfiguration;
-		scannerConfiguration = scannerService.newResourceChangeScannerConfiguration(resourceChangeScannerProperties);
-		log.info("Polling interval: {}", scannerConfiguration.getProperty("drools.resource.scanner.interval"));
-		// scannerConfiguration.setProperty("drools.resource.scanner.interval", Integer.toString(this.pollingInterval));
+		scannerConfiguration = scannerService.newResourceChangeScannerConfiguration();
+		log.info("Polling interval: {}", this.pollingInterval);
+		scannerConfiguration.setProperty("drools.resource.scanner.interval", Integer.toString(this.pollingInterval));
 		scannerService.configure(scannerConfiguration);
 		scannerService.start();
 

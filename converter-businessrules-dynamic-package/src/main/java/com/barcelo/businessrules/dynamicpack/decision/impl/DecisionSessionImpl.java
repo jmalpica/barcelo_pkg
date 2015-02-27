@@ -26,8 +26,10 @@ public class DecisionSessionImpl implements DecisionSessionInterface {
 
 	public void configureMonitorization(boolean keepRuleList, boolean countActivations, boolean logObjects) {
 		removeCurrentListeners();
-		this.agendaEventListener = new PkgAgendaEventListener(keepRuleList, countActivations);
-		this.session.addEventListener(this.agendaEventListener);
+		if (keepRuleList || countActivations) {
+			this.agendaEventListener = new PkgAgendaEventListener(keepRuleList, countActivations);
+			this.session.addEventListener(this.agendaEventListener);
+		}
 		if (logObjects) {
 			this.workingMemoryEventListener = new PkgWorkingMemoryEventListener();
 			this.session.addEventListener(this.workingMemoryEventListener);

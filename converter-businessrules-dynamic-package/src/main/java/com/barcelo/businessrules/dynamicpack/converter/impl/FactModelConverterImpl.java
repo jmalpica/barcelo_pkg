@@ -51,6 +51,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 	private DynamicPackage dynamicPackage;
 	private DateTime bookingDate;
 	private String destinationGroup;
+	private BigDecimal taxRate;
 
 	private static final String REENTRANCY_ERROR = new StringBuilder()
 			.append("Class misuse: This class")
@@ -180,6 +181,13 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		List<PackageOption> optionList = toPackage.getOptionList();
 		if (optionList != null) {
 			for (PackageOption packageOption : optionList) {
+				TOPriceInformation priceInformation = packageOption.getPriceInformation();
+				if (priceInformation != null) {
+					this.taxRate = priceInformation.getCommissionTaxPercentage();
+					if (this.taxRate.compareTo(BigDecimal.ONE) > 0) {
+						this.taxRate = this.taxRate.movePointLeft(2);
+					}
+				}
 				List<Component> componentList = packageOption.getComponentList();
 				if (componentList != null) {
 					for (Component component : componentList) {
@@ -241,7 +249,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		}
 	}
 
-	private static void processItineraryOption(List<ComponentDistribution> result, TransportDistribution transportDistribution, ItineraryOption itineraryOption) {
+	private void processItineraryOption(List<ComponentDistribution> result, TransportDistribution transportDistribution, ItineraryOption itineraryOption) {
 		TOPriceInformation priceInformation = itineraryOption.getPriceInformation();
 		if (priceInformation != null) {
 			if (transportDistribution.getPriceInformationRef() == null) {
@@ -321,7 +329,6 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 							processPriceData(hotelDistribution, priceInformation);
 
 							if (stayOption.getProvider() != null) {
-								// TODO - dag-vsf - 29/01/2015 - que hacer con los proveedores distintos por itinerario
 								hotelDistribution.setProvider(stayOption.getProvider().getProviderID());
 							}
 
@@ -333,7 +340,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 		}
 	}
 
-	private static void processPriceData(ComponentDistribution componentDistribution,
+	private void processPriceData(ComponentDistribution componentDistribution,
 										 TOPriceInformation priceInformation) {
 		if (componentDistribution.getPriceInformationRef() == null) {
 			// Primer precio, lo tomamos como referencia a modificar
@@ -346,12 +353,7 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 			} else {
 				componentDistribution.setNonCommissionableAmount(BigDecimal.ZERO);
 			}
-			Price commissionAmount = priceInformation.getCommissionAmount();
-			componentDistribution.setCommissionAmount(commissionAmount.getPrice());
-			Price commissionTaxesAmount = priceInformation.getCommissionTaxesAmount();
-			componentDistribution.setCommissionTaxesAmount(commissionTaxesAmount.getPrice());
-			BigDecimal commissionTaxPercentage = priceInformation.getCommissionTaxPercentage();
-			componentDistribution.setTaxRate(commissionTaxPercentage);
+			componentDistribution.setTaxRate(this.taxRate);
 
 			// This should not be necessary. Some rule is broken.
 			componentDistribution.setTotalAmount(BigDecimal.ZERO);
@@ -361,18 +363,12 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 			commissionableAmount = commissionableAmount.add(
 					priceInformation.getCommissionableAmount().getPrice());
 			componentDistribution.setCommissionableAmount(commissionableAmount);
-			BigDecimal nonCommissionableAmount = componentDistribution.getNonCommissionableAmount();
-			nonCommissionableAmount = nonCommissionableAmount.add(
-					priceInformation.getNonCommissionableAmount().getPrice());
-			componentDistribution.setNonCommissionableAmount(nonCommissionableAmount);
-			BigDecimal commissionAmount = componentDistribution.getCommissionAmount();
-			commissionAmount = commissionAmount.add(
-					priceInformation.getCommissionAmount().getPrice());
-			componentDistribution.setCommissionAmount(commissionAmount);
-			BigDecimal commissionTaxesAmount = componentDistribution.getCommissionTaxesAmount();
-			commissionTaxesAmount = commissionTaxesAmount.add(
-					priceInformation.getCommissionTaxesAmount().getPrice());
-			componentDistribution.setCommissionTaxesAmount(commissionTaxesAmount);
+			if (priceInformation.getNonCommissionableAmount() != null) {
+				BigDecimal nonCommissionableAmount = componentDistribution.getNonCommissionableAmount();
+				nonCommissionableAmount = nonCommissionableAmount.add(
+						priceInformation.getNonCommissionableAmount().getPrice());
+				componentDistribution.setNonCommissionableAmount(nonCommissionableAmount);
+			}
 		}
 	}
 

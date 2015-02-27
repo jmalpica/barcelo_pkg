@@ -71,7 +71,7 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 
 	/**
 	 * The purpose of this function is, on one hand to allow calculatePrices and calculatePreBookingPrices to share
-	 * code. And in the other, provide a handy invocation for JUnit tests that doen't require making complex and
+	 * code. And in the other, provide a handy invocation for JUnit tests that doesn't require making complex and
 	 * very, very fragile assertions on a changing JaxB external model (Testing of the JaxB conversion routines should
 	 * be made in another JUnit test using several round-trips over a known XML)
 	 * @param dynamicPackage The package that holds all the Facts to evaluate the rules over.
@@ -95,6 +95,8 @@ public class DecisionServiceImpl implements DecisionServiceInterface {
 		log.info("Programando agendas...");
 		kieSession.scheduleAgendaGroup("setup");
 		kieSession.scheduleAgendaGroup("commission_and_markup");
+		kieSession.scheduleAgendaGroup("calculate");
+		kieSession.scheduleAgendaGroup("profitability_warning");
 
 		log.info("Llamando a fireAllRules.");
 		kieSession.fireAllRules();
