@@ -123,21 +123,28 @@ public class FactModelConverterImpl implements FactModelConverterInterface {
 	private void extractDestination(List<Zone> zones) {
 		if (zones == null || zones.size() == 0) return;
 
+		List<Zone> zoneList = new ArrayList<Zone>();
 		LinkedHashSet<String> rootZones = new LinkedHashSet<String>();
 
-		rootZones.add(zones.get(0).getCode());
+		zoneList.addAll(zones);
 
-		for (Zone zone : zones) {
-			if (rootZones.contains(zone.getCode())) {
-				rootZones.remove(zone.getCode());
-				for (Zone ancestor : zone.getAncestorList()) {
-					rootZones.add(ancestor.getCode());
+		for (int i = 0; i < zoneList.size(); i++) {
+			Zone zone = zoneList.get(i);
+			if (zone != null) {
+				if (zone.getAncestorList() != null) {
+					zoneList.addAll(zone.getAncestorList());
+				}
+				if (zone.getCode() != null) {
+					rootZones.add(zone.getCode());
 				}
 			}
 		}
 
-		if (rootZones.size() > 0) {
-			this.destinationGroup = rootZones.iterator().next();
+		this.destinationGroup = "";
+		String glue = "";
+		for (String zone : rootZones) {
+			this.destinationGroup = this.destinationGroup + glue + zone;
+			glue = ",";
 		}
 	}
 
