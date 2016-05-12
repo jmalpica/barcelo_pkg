@@ -1,6 +1,6 @@
-# barcelo_pkg
+# rules_poc
 
-Este es el repositorio que utilizaremos para realizar la interfaz java del motor de reglas para el proyecto de paquete dinámico.
+Este es el repositorio que utilizaremos para realizar la interfaz java del motor de reglas para el proyecto de pricing.
 
 Proyectos:
 
